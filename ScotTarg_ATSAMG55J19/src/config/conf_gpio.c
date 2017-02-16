@@ -26,10 +26,10 @@ void gpio_init(void)
 	pio_set_input(PIOA, MIC3_PIO, PIO_PULLUP);
 	pio_set_input(PIOA, MIC4_PIO, PIO_PULLUP);
 
-	pio_handler_set(PIOA, ID_PIOA, MIC1_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	pio_handler_set(PIOA, ID_PIOA, MIC2_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	pio_handler_set(PIOA, ID_PIOA, MIC3_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	pio_handler_set(PIOA, ID_PIOA, MIC4_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
+	//pio_handler_set(PIOA, ID_PIOA, MIC1_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
+	//pio_handler_set(PIOA, ID_PIOA, MIC2_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
+	//pio_handler_set(PIOA, ID_PIOA, MIC3_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
+	//pio_handler_set(PIOA, ID_PIOA, MIC4_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 
 	NVIC_EnableIRQ(PIOA_IRQn);	
 }

@@ -18,6 +18,7 @@
 #define SHOTSTARTED		2
 #define SHOTRECORDED	3
 #define SHOTCOMPLETE	4
+#define SHOTSFAILED		5
 
 #define LED_FREQ		500
 #define SHOT_TIME_OUT			4

@@ -127,14 +127,20 @@ int main(void)
 {
 	sysclk_init();
 	board_init();
-
 	gpio_init();
-
 	configure_tc00();
 	configure_tc01();
 
-
 	int clockSpeed = sysclk_get_cpu_hz();
+	bool mic1_flag = false;
+	bool mic2_flag = false;
+	bool mic3_flag = false;
+	bool mic4_flag = false;
+	uint16_t mic1_time = 0;
+	uint16_t mic2_time = 0;
+	uint16_t mic3_time = 0;
+	uint16_t mic4_time = 0;
+	uint32_t timeout_counter = 0;
 
 	/* Setup SysTick Timer for 1 msec interrupts */
 	if (SysTick_Config(clockSpeed / 1000))
@@ -144,6 +150,7 @@ int main(void)
 		}
 	}
 	int y = 0;
+	int a, b, c, d, e, f = 0;
 
 	while (1) 
 	{
@@ -152,20 +159,69 @@ int main(void)
 			ul_ms_ticks = 0;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
 		}
-		if (systemState==SHOTSTARTED)
+		//! Scan pins for action
+		mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+		mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+		mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+		mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+
+		if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
 		{
-			y = tc_read_cv(TC1, 0);
-			while (tc00_ms < SHOT_TIME_OUT)
+			tc_start(TC1,0);
+			timeout_counter = ul_ms_ticks;
+			systemState = SHOTSTARTED;
+			do 
 			{
-			}
-			systemState = SHOTRECORDED;
+				if (mic1_flag)
+				{
+					mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+					d = tc_read_cv(TC1,0);
+					if (mic1_flag)
+					{
+						mic1_time = tc_read_cv(TC1,0);
+					}
+				}
+				if (!mic2_flag)
+				{
+					mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+					if (mic2_flag)
+					{
+						mic2_time = tc_read_cv(TC1,0);
+					}
+				}
+				if (!mic3_flag)
+				{
+					mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+					if (mic3_flag)
+					{
+						mic3_time = tc_read_cv(TC1,0);
+					}
+				}
+				if (!mic4_flag)
+				{
+					mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+					if (mic4_flag)
+					{
+						mic4_time = tc_read_cv(TC1,0);
+					}
+				}
+
+				if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
+				{
+					systemState = SHOTRECORDED;
+				}
+
+				if (ul_ms_ticks-timeout_counter > SHOT_TIME_OUT)
+				{
+					systemState = SHOTSFAILED;
+					break;
+				}
+			} while (systemState == SHOTSTARTED);
 		}
 		else if (systemState != WAITING)
 		{
-			if (systemState == SHOTRECORDED)
+			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
 			{
-				//y = tc_read_cv(TC1, 0);
-				tc_stop(TC1,0);
 				tc_stop(TC0,0);
 				int jimmy = y;
 				tc00_ms = 0;
@@ -182,23 +238,6 @@ int main(void)
 			}
 		}
 	}
-}
-
-void pin_edge_handler(const uint32_t id, const uint32_t index)
-{
-	tc_start(TC0,0);
-	tc_start(TC1,0);
-	if (systemState == INITIALISING)
-	{
-		tc_stop(TC1,0);
-		tc_stop(TC0,0);
-		tc00_ms = 0;
-		return;
-	}
-	gpio_disable_interrupts();
-	systemState = SHOTSTARTED;
-	int y = tc_read_cv(TC1, 0);
-	int x = y;
 }
 
 
