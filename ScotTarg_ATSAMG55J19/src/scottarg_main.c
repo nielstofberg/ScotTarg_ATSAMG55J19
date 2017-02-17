@@ -130,6 +130,8 @@ int main(void)
 	gpio_init();
 	configure_tc00();
 	configure_tc01();
+	configure_console();
+
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -140,7 +142,9 @@ int main(void)
 	uint16_t mic2_time = 0;
 	uint16_t mic3_time = 0;
 	uint16_t mic4_time = 0;
-	uint32_t timeout_counter = 0;
+	uint32_t timeout_marker = 0;
+	uint32_t shot_space_marker = 0;
+	uint32_t led_freq_marker = 0;
 
 	/* Setup SysTick Timer for 1 msec interrupts */
 	if (SysTick_Config(clockSpeed / 1000))
@@ -149,92 +153,135 @@ int main(void)
 		{  /* Capture error */
 		}
 	}
-	int y = 0;
-	int a, b, c, d, e, f = 0;
 
 	while (1) 
 	{
-		if (ul_ms_ticks >= LED_FREQ)
+		
+		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
 		{
-			ul_ms_ticks = 0;
+			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
 		}
-		//! Scan pins for action
-		mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-		mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-		mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-		mic4_flag = !ioport_get_pin_level(MIC4_PIN);
 
-		if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
+		if (systemState == WAITING)
 		{
-			tc_start(TC1,0);
-			timeout_counter = ul_ms_ticks;
-			systemState = SHOTSTARTED;
-			do 
+			//! Scan pins for action
+			mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+			mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+			mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+			mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+
+			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
 			{
-				if (mic1_flag)
+				tc_start(TC1,0);
+				timeout_marker = ul_ms_ticks;
+				systemState = SHOTSTARTED;
+				do 
 				{
-					mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-					d = tc_read_cv(TC1,0);
-					if (mic1_flag)
+					if (!mic1_flag)
 					{
-						mic1_time = tc_read_cv(TC1,0);
+						mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+						if (mic1_flag)
+						{
+							mic1_time = tc_read_cv(TC1,0);
+						}
 					}
-				}
-				if (!mic2_flag)
-				{
-					mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-					if (mic2_flag)
+					if (!mic2_flag)
 					{
-						mic2_time = tc_read_cv(TC1,0);
+						mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+						if (mic2_flag)
+						{
+							mic2_time = tc_read_cv(TC1,0);
+						}
 					}
-				}
-				if (!mic3_flag)
-				{
-					mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-					if (mic3_flag)
+					if (!mic3_flag)
 					{
-						mic3_time = tc_read_cv(TC1,0);
+						mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+						if (mic3_flag)
+						{
+							mic3_time = tc_read_cv(TC1,0);
+						}
 					}
-				}
-				if (!mic4_flag)
-				{
-					mic4_flag = !ioport_get_pin_level(MIC4_PIN);
-					if (mic4_flag)
+					if (!mic4_flag)
 					{
-						mic4_time = tc_read_cv(TC1,0);
+						mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+						if (mic4_flag)
+						{
+							mic4_time = tc_read_cv(TC1,0);
+						}
 					}
-				}
 
-				if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
-				{
-					systemState = SHOTRECORDED;
-				}
+					if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
+					{
+						systemState = SHOTRECORDED;
+					}
 
-				if (ul_ms_ticks-timeout_counter > SHOT_TIME_OUT)
-				{
-					systemState = SHOTSFAILED;
-					break;
-				}
-			} while (systemState == SHOTSTARTED);
+					if (ul_ms_ticks-timeout_marker > SHOT_TIME_OUT)
+					{
+						systemState = SHOTSFAILED;
+						break;
+					}
+				} while (systemState == SHOTSTARTED);
+				tc_stop(TC0,0);
+			}
 		}
-		else if (systemState != WAITING)
+		else
 		{
 			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
 			{
-				tc_stop(TC0,0);
-				int jimmy = y;
-				tc00_ms = 0;
+				char msg[15];
+				msg[0] = '<';
+				msg[14] = '>';
+				if (systemState == SHOTRECORDED)
+				{
+					msg[1] = 0;
+					msg[2] = mic1_time >> 8;
+					msg[3] = mic1_time;
+					msg[4] = 0;
+					msg[5] = mic2_time >> 8;
+					msg[6] = mic2_time;
+					msg[7] = 0;
+					msg[8] = mic3_time >> 8;
+					msg[9] = mic3_time;
+					msg[10] = 0;
+					msg[11] = mic4_time >> 8;
+					msg[12] = mic4_time;
+					msg[13] = 0;
+				}
+				else
+				{
+					msg[3] = 1;
+					msg[6] = 1;
+					msg[9] = 1;
+					msg[12] = 1;
+				}
+				for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
+				{
+					putchar(msg[a]);
+				}
+
 				systemState = SHOTCOMPLETE;
 			}
 			else if (systemState == SHOTCOMPLETE)
 			{
+				// Reset
+				mic1_flag = false;
+				mic2_flag = false;
+				mic3_flag = false;
+				mic4_flag = false;
+				mic1_time = 0;
+				mic2_time = 0;
+				mic3_time = 0;
+				mic4_time = 0;
 				systemState = INITIALISING;
+				shot_space_marker = ul_ms_ticks;
 			}
 			else if (systemState == INITIALISING)
 			{
-				gpio_enable_interrupts();
-				systemState = WAITING;
+				if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
+				{
+					systemState = WAITING;
+				}
 			}
 		}
 	}

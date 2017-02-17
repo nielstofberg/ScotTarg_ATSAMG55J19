@@ -11,6 +11,7 @@
 
 #include "config/conf_tc.h"
 #include "config/conf_gpio.h"
+#include "config/conf_uart_serial.h"
 
 #define INITIALISING	0
 //* Waiting for a shot or another command
@@ -21,7 +22,8 @@
 #define SHOTSFAILED		5
 
 #define LED_FREQ		500
-#define SHOT_TIME_OUT			4
+#define SHOT_TIME_OUT	4
+#define SHOT_SPACING	5000
 
 uint16_t systemState = INITIALISING;
 

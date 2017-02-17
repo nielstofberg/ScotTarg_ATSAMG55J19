@@ -19,19 +19,29 @@ void dh(const uint32_t id, const uint32_t index);
  */
 void gpio_init(void)
 {
+	ioport_set_pin_dir(MIC1_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_dir(MIC2_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_dir(MIC3_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_dir(MIC4_PIN, IOPORT_DIR_INPUT);
+
+	ioport_set_pin_mode(MIC1_PIN, IOPORT_MODE_PULLUP);
+	ioport_set_pin_mode(MIC2_PIN, IOPORT_MODE_PULLUP);
+	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
+	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
+
 	//pmc_enable_periph_clk(ID_PIOA); //I think this gets don in board setup
 
-	pio_set_input(PIOA, MIC1_PIO, PIO_PULLUP);
-	pio_set_input(PIOA, MIC2_PIO, PIO_PULLUP);
-	pio_set_input(PIOA, MIC3_PIO, PIO_PULLUP);
-	pio_set_input(PIOA, MIC4_PIO, PIO_PULLUP);
+	//pio_set_input(PIOA, MIC1_PIO, PIO_PULLUP);
+	//pio_set_input(PIOA, MIC2_PIO, PIO_PULLUP);
+	//pio_set_input(PIOA, MIC3_PIO, PIO_PULLUP);
+	//pio_set_input(PIOA, MIC4_PIO, PIO_PULLUP);
 
 	//pio_handler_set(PIOA, ID_PIOA, MIC1_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 	//pio_handler_set(PIOA, ID_PIOA, MIC2_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 	//pio_handler_set(PIOA, ID_PIOA, MIC3_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 	//pio_handler_set(PIOA, ID_PIOA, MIC4_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 
-	NVIC_EnableIRQ(PIOA_IRQn);	
+	//NVIC_EnableIRQ(PIOA_IRQn);	
 }
 
 /**
