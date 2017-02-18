@@ -1,0 +1,15 @@
+ScotTarg_ATSAMG55J19  
+  
+Target environment: Atmel ATSAMG55J19G  
+Purpose:  
+The simple application waits for inputs from 4 GPIO pins.  
+Once the first input is receives it starts a timer and for every subsaquent input received it takes a timer reading.
+after an input has been received from each of the four pins, the four timer values are sent to the uart.
+
+Each of the GPIO pins take their input from a sound sensor located in the corner of a target.
+The receiving software will use the four timings (one of which will allways be 0) to calculate the location of the sound source.
+
+Serial Protocol:
+15 bytes starting with '<' and ending with '>'
+the opening byte is followed by 4 24bit values (3 bytes per value) in order from Mic1 to Mic4.
+the 24th bit has no current use.
