@@ -21,10 +21,12 @@
 #define SHOTCOMPLETE	4
 #define SHOTSFAILED		5
 
+#define EXAMPLE_LED_GPIO    LED0_GPIO
 #define LED_FREQ		500
 #define SHOT_TIME_OUT	4
 #define SHOT_SPACING	5000
 
+volatile uint32_t ul_ms_ticks = 0;	//! Global ul_ms_ticks in milliseconds since start of application
 uint16_t systemState = INITIALISING;
 
 

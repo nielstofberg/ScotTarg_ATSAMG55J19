@@ -10,13 +10,16 @@
  /** Frequincy of TC0 interrupts */
  #define TC00_FREQ			1000
 
- /** LED0 blink time, as number of times TC0 will fire before blinking */
- #define BLINK_PERIOD        100
-
+ /**
+	Prescaler options:
+	PRESCALE 0 == Prescale 1/2 (Clock time)
+	PRESCALE 1 == Prescale 1/8 (Clock time)
+	PRESCALE 2 == Prescale 1/32 (Clock time)
+ */
+ #define PRESCALE			2
 
  /** GLOBAL VARIABLES **/
- volatile bool sec_flag;
- volatile int tc00_ms;
+ volatile int tc00_ms;	//! holds the number of times TC0 interrupt has occurred
 
  void configure_tc00(void);
  void configure_tc01(void);

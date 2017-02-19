@@ -9,7 +9,12 @@
 
  uint32_t counter = 0;
 
-
+ /**
+  Description:   Configuration routine for Timer 0 Channel 0 Can be used for timing at some point but nice code example for simple setup of timer counter. 
+  Params:	
+  
+  returns: 
+  */
  void configure_tc00(void)
  {
  	uint32_t freq = TC00_FREQ;
@@ -41,10 +46,15 @@
  	//tc_start(TC0, 0);
  }
 
+/**
+ Description:   Configure Timer 1 Channel 0
+				This timer is used to measure the timing between GPIO pin inputs
+ Params:	void
+ returns:	void
+ */
 void configure_tc01(void)
 {
-	uint32_t prescaler = 1; 
-	uint32_t ul_sysclk = sysclk_get_cpu_hz();
+	uint32_t prescaler = PRESCALE; 
 
 	/* Configure TC10 TC1 channel 0 */
 	pmc_enable_periph_clk(ID_TC3);
@@ -54,7 +64,12 @@ void configure_tc01(void)
 	tc_init(TC1, 0, prescaler | TC_CMR_CPCTRG);  
   }
 
-
+/**
+ Description:    Interrupt handler for Timer 0 Channel 0
+ Params:	
+ 
+ returns: 
+ */
  void TC0_Handler(void)
  {
 	tc00_ms += 1;

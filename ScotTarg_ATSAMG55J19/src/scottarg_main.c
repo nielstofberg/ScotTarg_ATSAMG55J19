@@ -87,26 +87,6 @@
 #include "asf.h"
 #include "scottarg.h"
 
-#define EXAMPLE_LED_GPIO    LED0_GPIO
-
-/* Global ul_ms_ticks in milliseconds since start of application */
-volatile uint32_t ul_ms_ticks = 0;
-
-/**
- * \brief Wait for the given number of milliseconds (using the ul_ms_ticks generated
- * by the SAM microcontroller system tick).
- *
- * \param ul_dly_ticks  Delay to wait for, in milliseconds.
- */
-static void mdelay(uint32_t ul_dly_ticks)
-{
-	uint32_t ul_cur_ticks;
-
-	ul_cur_ticks = ul_ms_ticks;
-	while ((ul_ms_ticks - ul_cur_ticks) < ul_dly_ticks) {
-	}
-}
-
 /**
  * \brief Handler for System Tick interrupt.
  *
@@ -128,7 +108,6 @@ int main(void)
 	sysclk_init();
 	board_init();
 	gpio_init();
-	configure_tc00();
 	configure_tc01();
 	configure_console();
 
@@ -222,7 +201,7 @@ int main(void)
 						break;
 					}
 				} while (systemState == SHOTSTARTED);
-				tc_stop(TC0,0);
+				tc_stop(TC1,0);
 			}
 		}
 		else
