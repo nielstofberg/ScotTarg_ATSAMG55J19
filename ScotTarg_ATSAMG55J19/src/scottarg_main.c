@@ -153,6 +153,7 @@ int main(void)
 			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
 			{
 				tc_start(TC1,0);
+				int timeCount = 0;
 				timeout_marker = ul_ms_ticks;
 				systemState = SHOTSTARTED;
 				do 
@@ -162,7 +163,7 @@ int main(void)
 						mic1_flag = !ioport_get_pin_level(MIC1_PIN);
 						if (mic1_flag)
 						{
-							mic1_time = tc_read_cv(TC1,0);
+							mic1_time = timeCount;
 						}
 					}
 					if (!mic2_flag)
@@ -170,7 +171,7 @@ int main(void)
 						mic2_flag = !ioport_get_pin_level(MIC2_PIN);
 						if (mic2_flag)
 						{
-							mic2_time = tc_read_cv(TC1,0);
+							mic2_time = timeCount;
 						}
 					}
 					if (!mic3_flag)
@@ -178,7 +179,7 @@ int main(void)
 						mic3_flag = !ioport_get_pin_level(MIC3_PIN);
 						if (mic3_flag)
 						{
-							mic3_time = tc_read_cv(TC1,0);
+							mic3_time = timeCount;
 						}
 					}
 					if (!mic4_flag)
@@ -186,9 +187,10 @@ int main(void)
 						mic4_flag = !ioport_get_pin_level(MIC4_PIN);
 						if (mic4_flag)
 						{
-							mic4_time = tc_read_cv(TC1,0);
+							mic4_time = timeCount;
 						}
 					}
+					timeCount = tc_read_cv(TC1,0);
 
 					if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
 					{
