@@ -110,7 +110,7 @@ int main(void)
 	gpio_init();
 	configure_tc01();
 	configure_console();
-
+	configure_serial();
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -133,6 +133,7 @@ int main(void)
 		}
 	}
 
+	int32_t c = 'A';
 	while (1) 
 	{
 		
@@ -140,6 +141,12 @@ int main(void)
 		{
 			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
+			if (usart_is_rx_ready(USART_SERIAL))
+			{
+				usart_getchar(USART_SERIAL, &c);
+			}
+			usart_putchar(USART_SERIAL, 'V');
+			putchar(c);
 		}
 
 		if (systemState == WAITING)
