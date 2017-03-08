@@ -61,16 +61,11 @@
 
 /* A reference setting for USART */
 /** USART Interface */
-#define USART_SERIAL              USART0
-#define USART_SERIAL_ID           ID_FLEXCOM0
-/** Baudrate setting */
-//#define CONF_UART_BAUDRATE     115200
-/** Character length setting */
-//#define CONF_UART_CHAR_LENGTH  US_MR_CHRL_8_BIT
-/** Parity setting */
-//#define CONF_UART_PARITY       US_MR_PAR_NO
-/** Stop bits setting */
-//#define CONF_UART_STOP_BITS    US_MR_NBSTOP_1_BIT
+#define USART_SERIAL                     USART6
+#define USART_SERIAL_BAUDRATE            9600
+#define USART_SERIAL_CHAR_LENGTH         US_MR_CHRL_8_BIT
+#define USART_SERIAL_PARITY              US_MR_PAR_NO
+#define USART_SERIAL_STOP_BIT            false
 
 void configure_console(void);
 void configure_serial(void);

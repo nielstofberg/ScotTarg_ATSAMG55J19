@@ -133,7 +133,9 @@ int main(void)
 		}
 	}
 
-	int32_t c = 'A';
+	int8_t c = 'A';
+	int8_t b = 'B';
+
 	while (1) 
 	{
 		
@@ -141,12 +143,17 @@ int main(void)
 		{
 			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
+
+			if (usart_is_rx_ready(CONF_UART))
+			{
+				c = getchar();
+			}
+			usart_serial_putchar(USART_SERIAL, c);
 			if (usart_is_rx_ready(USART_SERIAL))
 			{
-				usart_getchar(USART_SERIAL, &c);
+				usart_serial_getchar(USART_SERIAL, &b);		
 			}
-			usart_putchar(USART_SERIAL, 'V');
-			putchar(c);
+			putchar(b);
 		}
 
 		if (systemState == WAITING)

@@ -213,9 +213,9 @@ void system_board_init(void)
 #ifdef CONF_BOARD_USART6
 	ioport_set_pin_peripheral_mode(USART6_RXD_GPIO, USART6_RXD_FLAGS);
 	ioport_set_pin_peripheral_mode(USART6_TXD_GPIO, USART6_TXD_FLAGS);
-	ioport_set_pin_peripheral_mode(USART6_SCK_GPIO, USART6_SCK_FLAGS);
-	ioport_set_pin_peripheral_mode(USART6_CTS_GPIO, USART6_CTS_FLAGS);
-	ioport_set_pin_peripheral_mode(USART6_RTS_GPIO, USART6_RTS_FLAGS);
+	//ioport_set_pin_peripheral_mode(USART6_SCK_GPIO, USART6_SCK_FLAGS);
+	//ioport_set_pin_peripheral_mode(USART6_CTS_GPIO, USART6_CTS_FLAGS);
+	//ioport_set_pin_peripheral_mode(USART6_RTS_GPIO, USART6_RTS_FLAGS);
 #endif
 
 #if defined(CONF_BOARD_USB_PORT)

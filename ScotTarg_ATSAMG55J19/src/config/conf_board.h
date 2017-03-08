@@ -49,6 +49,6 @@
 
 /** Enable Com Port. */
 #define CONF_BOARD_UART_CONSOLE
-
+#define CONF_BOARD_USART6
 
 #endif /* CONF_BOARD_H_INCLUDED */

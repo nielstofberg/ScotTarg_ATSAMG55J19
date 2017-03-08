@@ -29,18 +29,12 @@ void configure_console(void)
 
 void configure_serial(void)
 {
-	sam_usart_opt_t usart_serial_options = {
-		CONF_UART_BAUDRATE,
-		CONF_UART_CHAR_LENGTH,
-		CONF_UART_PARITY,
-		CONF_UART_STOP_BITS,
-		US_MR_CHMODE_NORMAL
+	static usart_serial_options_t usart_options = {
+		.baudrate = USART_SERIAL_BAUDRATE,
+		.charlength = USART_SERIAL_CHAR_LENGTH,
+		.paritytype = USART_SERIAL_PARITY,
+		.stopbits = USART_SERIAL_STOP_BIT
 	};
 
-			/* Configure console UART. */
-	sysclk_enable_peripheral_clock(USART_SERIAL_ID);
-	usart_init_rs232(USART_SERIAL, &usart_serial_options, sysclk_get_main_hz());
-	//stdio_serial_init((Usart *)CONF_UART1, &usart_serial_options);
-	usart_enable_tx(USART_SERIAL);
-	usart_enable_rx(USART_SERIAL);
+	usart_serial_init(USART_SERIAL, &usart_options);
 }
