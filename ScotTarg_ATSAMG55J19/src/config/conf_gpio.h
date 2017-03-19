@@ -22,10 +22,18 @@
 #define MIC3_PIO	PIO_PA24
 #define MIC4_PIO	PIO_PA29
 
+#define MOTOR_PIN_1 EXT1_PIN_13
+#define MOTOR_PIN_2 EXT1_PIN_14
+#define MOTOR_PIN_3 EXT4_PIN_5
+#define MOTOR_PIN_4 EXT4_PIN_9
+
+
 //! Function Headers
 void gpio_init(void);
 void gpio_enable_interrupts(void);
 void gpio_disable_interrupts(void);
+void pio_enable_button_interrupt(void);
+void button_press_handler(const uint32_t id, const uint32_t index);
 void pin_edge_handler(const uint32_t id, const uint32_t index);
 
 #endif /* GPIO_SETUP_H_ */

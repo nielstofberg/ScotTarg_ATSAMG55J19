@@ -29,7 +29,17 @@ void gpio_init(void)
 	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
 	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
 
-	//pmc_enable_periph_clk(ID_PIOA); //I think this gets don in board setup
+	ioport_set_pin_dir(MOTOR_PIN_1, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_mode(MOTOR_PIN_1, IOPORT_MODE_PULLUP);
+	ioport_set_pin_dir(MOTOR_PIN_2, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_mode(MOTOR_PIN_2, IOPORT_MODE_PULLUP);
+	ioport_set_pin_dir(MOTOR_PIN_3, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_mode(MOTOR_PIN_3, IOPORT_MODE_PULLUP);
+	ioport_set_pin_dir(MOTOR_PIN_4, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_mode(MOTOR_PIN_4, IOPORT_MODE_PULLUP);
+
+
+	//pmc_enable_periph_clk(ID_PIOA); //I think this gets done in board setup
 
 	//pio_set_input(PIOA, MIC1_PIO, PIO_PULLUP);
 	//pio_set_input(PIOA, MIC2_PIO, PIO_PULLUP);
@@ -41,7 +51,9 @@ void gpio_init(void)
 	//pio_handler_set(PIOA, ID_PIOA, MIC3_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 	//pio_handler_set(PIOA, ID_PIOA, MIC4_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
 
-	//NVIC_EnableIRQ(PIOA_IRQn);	
+	pio_handler_set(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_ID, PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE, button_press_handler);
+
+	NVIC_EnableIRQ(PIOA_IRQn);	
 }
 
 /**
@@ -62,7 +74,10 @@ void gpio_disable_interrupts(void)
 	pio_disable_interrupt(PIOA, MIC1_PIO | MIC2_PIO | MIC3_PIO | MIC4_PIO);
 }
 
-
+void pio_enable_button_interrupt(void)
+{
+		pio_enable_interrupt(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK);
+}
 
 /**
  Description:	Placeholder event handler for pin_edge_handler.

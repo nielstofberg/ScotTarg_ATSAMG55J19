@@ -64,16 +64,3 @@ void configure_tc01(void)
 	tc_init(TC1, 0, prescaler | TC_CMR_CPCTRG);  
   }
 
-/**
- Description:    Interrupt handler for Timer 0 Channel 0
- Params:	
- 
- returns: 
- */
- void TC0_Handler(void)
- {
-	tc00_ms += 1;
-
-	 /* Clear status bit to acknowledge interrupt */
-	 tc_get_status(TC0, 0);
- }

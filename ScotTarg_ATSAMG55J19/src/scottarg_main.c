@@ -97,20 +97,31 @@ void SysTick_Handler(void)
 	ul_ms_ticks++;
 }
 
+void button_press_handler(const uint32_t id, const uint32_t index)
+{
+
+	putchar('X');
+	if (systemState != INITIALISING)
+	{
+		startmotor(FORWARD, 200);
+	}
+}
 
 /**
  * \brief Initialize the clock system and blink a LED at a constant 1 Hz frequency.
  *
  * \return Unused (ANSI-C compatibility).
  */
-int main(void)
+int main(void) 
 {
 	sysclk_init();
 	board_init();
 	gpio_init();
+	configure_tc00();
 	configure_tc01();
 	configure_console();
 	configure_serial();
+	pio_enable_button_interrupt();
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -127,7 +138,7 @@ int main(void)
 
 	/* Setup SysTick Timer for 1 msec interrupts */
 	if (SysTick_Config(clockSpeed / 1000))
-	 {
+	{
 		while (1) 
 		{  /* Capture error */
 		}
@@ -259,6 +270,8 @@ int main(void)
 			}
 			else if (systemState == SHOTCOMPLETE)
 			{
+				//!ADvance Paper
+				startmotor(FORWARD, 200);
 				// Reset
 				mic1_flag = false;
 				mic2_flag = false;
@@ -282,6 +295,68 @@ int main(void)
 	}
 }
 
+/**
+ Description:    Interrupt handler for Timer 0 Channel 0
+ Params:	
+ 
+ returns: 
+ */
+ void TC0_Handler(void)
+ {
+	tc00_ms += 1;
+	 /* Clear status bit to acknowledge interrupt */
+	 tc_get_status(TC0, 0);
 
+	 if (tc00_ms>=2)
+	 {
+		tc00_ms = 0;
+		stepmotor();
+	 }
+ }
 
+void startmotor(uint16_t dir, uint32_t steps)
+{
+	motorstepdir = dir;
+	motorsteptarget = steps;
+	tc_start(TC0,0);
+}
 
+void stepmotor(void)
+{
+	motorstepcount += 1;
+	if (motorstepcount > motorsteptarget)
+	{
+		stopmotor();
+	}
+	else
+	{
+		pio_set_pin_low(motorpins[motorpinindex]);
+		if (motorstepdir == BACKWARD)
+		{
+			motorpinindex+=1;
+			if (motorpinindex == MOTOR_PIN_COUNT)
+			{
+				motorpinindex = 0;
+			}
+		}
+		else 
+		{
+			if(motorpinindex == 0)
+			{
+				motorpinindex = MOTOR_PIN_COUNT-1;
+			}
+			else
+			{
+				motorpinindex -=1;
+			}
+		}
+		pio_set_pin_high(motorpins[motorpinindex]);
+	}
+}
+
+void stopmotor(void)
+{
+	tc_stop(TC0, 0);
+	pio_set_pin_low(motorpins[motorpinindex]);
+	motorstepcount = 0;
+}
