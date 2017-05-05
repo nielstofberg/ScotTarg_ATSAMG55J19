@@ -144,27 +144,17 @@ int main(void)
 		}
 	}
 
-	int8_t c = 'A';
-	int8_t b = 'B';
-
 	while (1) 
 	{
-		
 		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
 		{
 			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
 
-			if (usart_is_rx_ready(CONF_UART))
-			{
-				c = getchar();
-			}
-			usart_serial_putchar(USART_SERIAL, c);
-			if (usart_is_rx_ready(USART_SERIAL))
-			{
-				usart_serial_getchar(USART_SERIAL, &b);		
-			}
-			putchar(b);
+			//if (usart_is_rx_ready(USART_SERIAL))
+			//{
+				//usart_serial_getchar(USART_SERIAL, &c);		
+			//}
 		}
 
 		if (systemState == WAITING)
@@ -264,6 +254,7 @@ int main(void)
 				for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
 				{
 					putchar(msg[a]);
+					usart_serial_putchar(USART_SERIAL, msg[a]);
 				}
 
 				systemState = SHOTCOMPLETE;
