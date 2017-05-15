@@ -3,13 +3,48 @@ ScotTarg_ATSAMG55J19
 Target environment: Atmel ATSAMG55J19G  
 Purpose:  
 The simple application waits for inputs from 4 GPIO pins.  
-Once the first input is receives it starts a timer and for every subsaquent input received it takes a timer reading.
-after an input has been received from each of the four pins, the four timer values are sent to the uart.
+Once the first input is receives it starts a timer and for every subsequent input received it takes a timer reading.
+after an input has been received from each of the four pins, the four timer values are sent to the UART.
 
 Each of the GPIO pins take their input from a sound sensor located in the corner of a target.
-The receiving software will use the four timings (one of which will allways be 0) to calculate the location of the sound source.
+The receiving software will use the four timings (one of which will always be 0) to calculate the location of the sound source.
 
 Serial Protocol:
-15 bytes starting with '<' and ending with '>'
-the opening byte is followed by 4 24bit values (3 bytes per value) in order from Mic1 to Mic4.
-the 24th bit has no current use.
+This software will normally act as a comms slave with only one exception.That is to say, this software will accept valid comms packages and execute the containing command.
+A valid command starts with '<'[0x3C] and ends with '>'[0x3E].
+After the opening '<' follows a count byte. The count byte holds the length of the entire message
+The third byte is the command.
+Byte 4 to byte [count-1] are data bytes that hold the relevant data described bellow.
+
+Shot Packet:
+============
+Command: 0x20
+Total Length: 13
+Data byte 1 & 2: 16 bit Shot ID consecutive values so client software can know when it has missed a shot
+Byte 3 & 4: 16 bit time count of sensor 1 (Left bottom)
+Byte 5 & 6: 16 bit time count of sensor 2 (Left top)
+Byte 7 & 8: 16 bit time count of sensor 3 (Right top)
+Byte 9 & 10: 16 bit time count of sensor 4 (Right bottom)
+This is the only packet that gets sent from this software without necessaraly having having received a request. This packet gets sent immediately after a shot was registered, but can be requested again by sending a Resend Shot command
+
+
+Resend Shot:
+============
+Command: 0x21
+Total Length: 6
+Data byte 1 & 2: 16 bit ID of shot to send
+The reply to this command is a complete shot packet for the requested shot.
+
+Set Paper Advance:
+==================
+Command: 0x22
+Total Length: 5
+Data byte 1: Number of mm the motor should advance after each shot.
+The reply for this command is only an ACK (0x06) or NAK (0x15) command
+
+Get Paper Advance:
+==================
+Command: 0x23
+Total Length: 4
+No data bytes.
+Reply is a full Set paper advance command

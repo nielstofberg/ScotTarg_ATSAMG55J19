@@ -581,6 +581,7 @@
     <Folder Include="src\ASF\thirdparty\CMSIS\Include\" />
     <Folder Include="src\ASF\thirdparty\CMSIS\Lib\" />
     <Folder Include="src\ASF\thirdparty\CMSIS\Lib\GCC\" />
+    <Folder Include="src\comms" />
     <Folder Include="src\config\" />
   </ItemGroup>
   <ItemGroup>
@@ -638,6 +639,12 @@
     <None Include="src\ASF\sam\drivers\usart\usart.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\comms\comms.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\comms\comms.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\config\conf_gpio.c">
       <SubType>compile</SubType>
     </Compile>

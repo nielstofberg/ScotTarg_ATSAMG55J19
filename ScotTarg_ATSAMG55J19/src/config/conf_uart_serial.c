@@ -12,6 +12,12 @@
  /**
  * \brief Configure UART console.
  */
+/**
+ Description:   Configure serial port USART_SERIALUART Console.
+				used to plug USB coms directly into the Sam G55 Xplained Pro micro USB slot
+ Params:	void
+ returns:	void
+ */
 void configure_console(void)
 {
 	const usart_serial_options_t uart_serial_options = {
@@ -27,6 +33,12 @@ void configure_console(void)
 	stdio_serial_init((Usart *)CONF_UART, &uart_serial_options);
 }
 
+/**
+ Description:   Configure serial port USART_SERIAL
+				In this application this serial port is used to send shot information to the client.
+ Params:	void
+ returns:	void
+ */
 void configure_serial(void)
 {
 	static usart_serial_options_t usart_options = {

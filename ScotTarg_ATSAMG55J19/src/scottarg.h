@@ -12,6 +12,7 @@
 #include "config/conf_tc.h"
 #include "config/conf_gpio.h"
 #include "config/conf_uart_serial.h"
+#include "comms/comms.h"
 
 #define INITIALISING	0
 //! Waiting for a shot or another command

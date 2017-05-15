@@ -225,38 +225,47 @@ int main(void)
 		{
 			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
 			{
-				char msg[15];
-				msg[0] = '<';
-				msg[14] = '>';
 				if (systemState == SHOTRECORDED)
 				{
-					msg[1] = 0;
-					msg[2] = mic1_time >> 8;
-					msg[3] = mic1_time;
-					msg[4] = 0;
-					msg[5] = mic2_time >> 8;
-					msg[6] = mic2_time;
-					msg[7] = 0;
-					msg[8] = mic3_time >> 8;
-					msg[9] = mic3_time;
-					msg[10] = 0;
-					msg[11] = mic4_time >> 8;
-					msg[12] = mic4_time;
-					msg[13] = 0;
+					send_good_shot(mic1_time, mic2_time, mic3_time, mic4_time, 0);
 				}
 				else
 				{
-					msg[3] = 1;
-					msg[6] = 1;
-					msg[9] = 1;
-					msg[12] = 1;
-				}
-				for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
-				{
-					putchar(msg[a]);
-					usart_serial_putchar(USART_SERIAL, msg[a]);
+					send_bad_shot(0);
 				}
 
+				//char msg[15];
+				//msg[0] = '<';
+				//msg[14] = '>';
+				//if (systemState == SHOTRECORDED)
+				//{
+					//msg[1] = 0;
+					//msg[2] = mic1_time >> 8;
+					//msg[3] = mic1_time;
+					//msg[4] = 0;
+					//msg[5] = mic2_time >> 8;
+					//msg[6] = mic2_time;
+					//msg[7] = 0;
+					//msg[8] = mic3_time >> 8;
+					//msg[9] = mic3_time;
+					//msg[10] = 0;
+					//msg[11] = mic4_time >> 8;
+					//msg[12] = mic4_time;
+					//msg[13] = 0;
+				//}
+				//else
+				//{
+					//msg[3] = 1;
+					//msg[6] = 1;
+					//msg[9] = 1;
+					//msg[12] = 1;
+				//}
+				//for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
+				//{
+					//putchar(msg[a]);
+					//usart_serial_putchar(USART_SERIAL, msg[a]);
+				//}
+//
 				systemState = SHOTCOMPLETE;
 			}
 			else if (systemState == SHOTCOMPLETE)
