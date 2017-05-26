@@ -5,11 +5,16 @@
  *  Author: NielSt
  */ 
 
- #include "comms.h"
+#include "comms.h"
 
- int bufferIndex = 0;
- char receiveBuffer[255];
+int buffer_pointer = 0;
+char rec_buffer[255];
 
+/**
+* \brief send the raw timings of a good shot
+*
+* \return void
+*/
 void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId)
 {
 	char msg[15];
@@ -36,6 +41,11 @@ void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,ui
 	}
 }
 
+/**
+* \brief Send a message to the master informing of a bad/invalid shot
+*
+* \return void
+*/
 void send_bad_shot(uint16_t shotId)
 {
 	char msg[15];
@@ -52,6 +62,13 @@ void send_bad_shot(uint16_t shotId)
 		putchar(msg[a]);
 		usart_serial_putchar(USART_SERIAL, msg[a]);
 	}
+}
+
+/**
+* \brief Send a test message
+*
+* \return void
+*/
 void send_test(void)
 {
 	char msg[4];
@@ -66,42 +83,74 @@ void send_test(void)
 	}
 }
 
+/**
+* \brief Read any available bytes
+*
+* \return void
+*/
 void read_byte(void)
 {
-	char buff;
-	if (usart_serial_is_rx_ready(USART_SERIAL))
+	bool checkBuff = false;
+	uint8_t buff;
+	while (usart_serial_is_rx_ready(USART_SERIAL))
 	{
 		usart_serial_getchar(USART_SERIAL, &buff);
 		rec_buffer[buffer_pointer] = buff;
 		buffer_pointer++;
+		checkBuff = true;
+	}
+	if (checkBuff)
+	{
+		Message myMessage;
+		get_command_from_buffer(&myMessage);
 	}
 }
 
+/**
+* \brief Check if there is a valid message in the buffer. if there is, separate the command and data and place it in a Message struct.
+*
+* \return True if valid message was read. False if the buffer contains no valid message.
+*/
 bool get_command_from_buffer(Message *msg)
 {
 	int startIndex = 0;
 	int readIndex = 0;
-	while (receiveBuffer[startIndex] != START_BYTE)
+	while (rec_buffer[startIndex] != START_BYTE)
 	{
 		startIndex++;
-		if (startIndex >= bufferIndex)
+		if (startIndex >= buffer_pointer)
 		{
 			return false;
 		}
 	}
 	readIndex = startIndex +1;
-	if (readIndex >= bufferIndex || receiveBuffer[readIndex] > (bufferIndex - startIndex) )
+	
+	if (readIndex >= buffer_pointer) 
 	{
 		return false;
 	}
-	else if (receiveBuffer[readIndex+receiveBuffer[readIndex]]-2)
+	else if (rec_buffer[readIndex] > BUFFER_SIZE)
 	{
-		for (int n = 0; n < bufferIndex; n++)
-		{
-			receiveBuffer[n] = 0x0;
-		}
-		bufferIndex = 0;
+		clearbuffer();
+		return false;
+	}
+	else if(rec_buffer[readIndex] > (buffer_pointer - startIndex))
+	{
+		return false;
+	}
+	else if (rec_buffer[startIndex + rec_buffer[readIndex]-1])
+	{
+		clearbuffer();
 		return false;
 	}
 	return false;
+}
+
+void clearbuffer(void)
+{
+	for (int n = 0; n < buffer_pointer; n++)
+	{
+		rec_buffer[n] = 0x0;
+	}
+	buffer_pointer = 0;
 }
