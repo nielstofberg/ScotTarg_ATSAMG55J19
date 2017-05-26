@@ -7,6 +7,8 @@
 
  #include "comms.h"
 
+int32_t buffer_pointer = 0;
+
 void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId)
 {
 	char msg[15];
@@ -48,5 +50,30 @@ void send_bad_shot(uint16_t shotId)
 	{
 		putchar(msg[a]);
 		usart_serial_putchar(USART_SERIAL, msg[a]);
+	}
+}
+
+void send_test(void)
+{
+	char msg[4];
+	msg[0] = 'T';
+	msg[1] = 'e';
+	msg[2] = 's';
+	msg[3] = 't';
+
+	for (int a=0; a<4; a++)
+	{
+		usart_serial_putchar(USART_SERIAL, msg[a]);
+	}
+}
+
+void read_byte(void)
+{
+	char buff;
+	if (usart_serial_is_rx_ready(USART_SERIAL))
+	{
+		usart_serial_getchar(USART_SERIAL, &buff);
+		rec_buffer[buffer_pointer] = buff;
+		buffer_pointer++;
 	}
 }

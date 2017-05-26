@@ -583,6 +583,7 @@
     <Folder Include="src\ASF\thirdparty\CMSIS\Lib\GCC\" />
     <Folder Include="src\comms" />
     <Folder Include="src\config\" />
+    <Folder Include="src\motor" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ASF\common\services\serial\sam_uart\uart_serial.h">
@@ -1105,6 +1106,12 @@
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\config\conf_uart_serial.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\motor\stepmotor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\motor\stepmotor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\scottarg.h">

@@ -99,7 +99,7 @@ void SysTick_Handler(void)
 
 void button_press_handler(const uint32_t id, const uint32_t index)
 {
-
+	send_test();
 	putchar('X');
 	if (systemState != INITIALISING)
 	{
@@ -150,12 +150,9 @@ int main(void)
 		{
 			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
-
-			//if (usart_is_rx_ready(USART_SERIAL))
-			//{
-				//usart_serial_getchar(USART_SERIAL, &c);		
-			//}
 		}
+
+		read_byte();
 
 		if (systemState == WAITING)
 		{
@@ -234,38 +231,6 @@ int main(void)
 					send_bad_shot(0);
 				}
 
-				//char msg[15];
-				//msg[0] = '<';
-				//msg[14] = '>';
-				//if (systemState == SHOTRECORDED)
-				//{
-					//msg[1] = 0;
-					//msg[2] = mic1_time >> 8;
-					//msg[3] = mic1_time;
-					//msg[4] = 0;
-					//msg[5] = mic2_time >> 8;
-					//msg[6] = mic2_time;
-					//msg[7] = 0;
-					//msg[8] = mic3_time >> 8;
-					//msg[9] = mic3_time;
-					//msg[10] = 0;
-					//msg[11] = mic4_time >> 8;
-					//msg[12] = mic4_time;
-					//msg[13] = 0;
-				//}
-				//else
-				//{
-					//msg[3] = 1;
-					//msg[6] = 1;
-					//msg[9] = 1;
-					//msg[12] = 1;
-				//}
-				//for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
-				//{
-					//putchar(msg[a]);
-					//usart_serial_putchar(USART_SERIAL, msg[a]);
-				//}
-//
 				systemState = SHOTCOMPLETE;
 			}
 			else if (systemState == SHOTCOMPLETE)
@@ -295,68 +260,3 @@ int main(void)
 	}
 }
 
-/**
- Description:    Interrupt handler for Timer 0 Channel 0
- Params:	
- 
- returns: 
- */
- void TC0_Handler(void)
- {
-	tc00_ms += 1;
-	 /* Clear status bit to acknowledge interrupt */
-	 tc_get_status(TC0, 0);
-
-	 if (tc00_ms>=2)
-	 {
-		tc00_ms = 0;
-		stepmotor();
-	 }
- }
-
-void startmotor(uint16_t dir, uint32_t steps)
-{
-	motorstepdir = dir;
-	motorsteptarget = steps;
-	tc_start(TC0,0);
-}
-
-void stepmotor(void)
-{
-	motorstepcount += 1;
-	if (motorstepcount > motorsteptarget)
-	{
-		stopmotor();
-	}
-	else
-	{
-		pio_set_pin_low(motorpins[motorpinindex]);
-		if (motorstepdir == BACKWARD)
-		{
-			motorpinindex+=1;
-			if (motorpinindex == MOTOR_PIN_COUNT)
-			{
-				motorpinindex = 0;
-			}
-		}
-		else 
-		{
-			if(motorpinindex == 0)
-			{
-				motorpinindex = MOTOR_PIN_COUNT-1;
-			}
-			else
-			{
-				motorpinindex -=1;
-			}
-		}
-		pio_set_pin_high(motorpins[motorpinindex]);
-	}
-}
-
-void stopmotor(void)
-{
-	tc_stop(TC0, 0);
-	pio_set_pin_low(motorpins[motorpinindex]);
-	motorstepcount = 0;
-}

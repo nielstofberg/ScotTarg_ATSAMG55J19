@@ -19,7 +19,7 @@
  #define PRESCALE			2
 
  /** GLOBAL VARIABLES **/
- volatile int tc00_ms;	//! holds the number of times TC0 interrupt has occurred
+ //volatile int tc00_ms;	//! holds the number of times TC0 interrupt has occurred
 
  void configure_tc00(void);
  void configure_tc01(void);

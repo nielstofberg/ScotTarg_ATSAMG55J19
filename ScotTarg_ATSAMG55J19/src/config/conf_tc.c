@@ -21,7 +21,6 @@
  	uint32_t ul_div;
  	uint32_t ul_tcclks;
  	uint32_t ul_sysclk = sysclk_get_cpu_hz();
-	tc00_ms = 0;
 
  	/* Configure TC0 */
  	/* Configure PMC */
