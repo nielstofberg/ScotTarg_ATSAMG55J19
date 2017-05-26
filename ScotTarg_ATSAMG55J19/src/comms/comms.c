@@ -7,7 +7,8 @@
 
  #include "comms.h"
 
-int32_t buffer_pointer = 0;
+ int bufferIndex = 0;
+ char receiveBuffer[255];
 
 void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId)
 {
@@ -51,8 +52,6 @@ void send_bad_shot(uint16_t shotId)
 		putchar(msg[a]);
 		usart_serial_putchar(USART_SERIAL, msg[a]);
 	}
-}
-
 void send_test(void)
 {
 	char msg[4];
@@ -76,4 +75,33 @@ void read_byte(void)
 		rec_buffer[buffer_pointer] = buff;
 		buffer_pointer++;
 	}
+}
+
+bool get_command_from_buffer(Message *msg)
+{
+	int startIndex = 0;
+	int readIndex = 0;
+	while (receiveBuffer[startIndex] != START_BYTE)
+	{
+		startIndex++;
+		if (startIndex >= bufferIndex)
+		{
+			return false;
+		}
+	}
+	readIndex = startIndex +1;
+	if (readIndex >= bufferIndex || receiveBuffer[readIndex] > (bufferIndex - startIndex) )
+	{
+		return false;
+	}
+	else if (receiveBuffer[readIndex+receiveBuffer[readIndex]]-2)
+	{
+		for (int n = 0; n < bufferIndex; n++)
+		{
+			receiveBuffer[n] = 0x0;
+		}
+		bufferIndex = 0;
+		return false;
+	}
+	return false;
 }
