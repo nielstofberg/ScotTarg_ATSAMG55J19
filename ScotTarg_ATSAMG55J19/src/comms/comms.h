@@ -12,8 +12,17 @@
 #include "asf.h"
 #include "config/conf_uart_serial.h"
 
- void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId);
- void send_bad_shot(uint16_t shotId);
+#define START_BYTE	0x3C
+#define END_BYTE	0x3E
 
+typedef struct message_struct
+{
+	Byte command;
+	Byte data[];
+} Message;
+
+void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId);
+void send_bad_shot(uint16_t shotId);
+bool get_command_from_buffer(Message *msg);
 
 #endif /* COMMS_H_ */
