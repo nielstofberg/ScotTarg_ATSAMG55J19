@@ -49,4 +49,7 @@ void configure_serial(void)
 	};
 
 	usart_serial_init(USART_SERIAL, &usart_options);
+
+	NVIC_EnableIRQ((IRQn_Type) FLEXCOM6_IRQn);
+	usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
 }

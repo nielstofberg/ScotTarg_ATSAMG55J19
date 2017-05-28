@@ -146,6 +146,11 @@ bool get_command_from_buffer(Message *msg)
 	return false;
 }
 
+void FLEXCOM6_Handler()
+{
+
+}
+
 void clearbuffer(void)
 {
 	for (int n = 0; n < buffer_pointer; n++)
