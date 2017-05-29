@@ -148,7 +148,15 @@ bool get_command_from_buffer(Message *msg)
 
 void FLEXCOM6_Handler()
 {
-
+	uint8_t buff;
+	if (usart_serial_is_rx_ready(USART_SERIAL))
+	{
+		usart_serial_getchar(USART_SERIAL, &buff);
+		rec_buffer[buffer_pointer] = buff;
+		buffer_pointer++;
+		Message myMessage;
+		get_command_from_buffer(&myMessage);
+	}
 }
 
 void clearbuffer(void)

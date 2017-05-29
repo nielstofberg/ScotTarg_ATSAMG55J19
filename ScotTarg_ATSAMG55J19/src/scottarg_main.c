@@ -152,7 +152,7 @@ int main(void)
 			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
 		}
 
-		read_byte();
+		//read_byte();
 
 		if (systemState == WAITING)
 		{
