@@ -13,6 +13,7 @@
 #include "config/conf_gpio.h"
 #include "config/conf_uart_serial.h"
 #include "comms/comms.h"
+#include "config/conf_motor.h"
 #include "motor/stepmotor.h"
 
 #define INITIALISING	0

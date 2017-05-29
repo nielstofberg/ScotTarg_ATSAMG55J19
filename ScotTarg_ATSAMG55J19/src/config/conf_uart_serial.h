@@ -61,11 +61,13 @@
 
 /* A reference setting for USART */
 /** USART Interface */
-#define USART_SERIAL                     USART6
-#define USART_SERIAL_BAUDRATE            9600
-#define USART_SERIAL_CHAR_LENGTH         US_MR_CHRL_8_BIT
-#define USART_SERIAL_PARITY              US_MR_PAR_NO
-#define USART_SERIAL_STOP_BIT            false
+#define USART_SERIAL                USART6
+#define USART_SERIAL_BAUDRATE       9600
+#define USART_SERIAL_CHAR_LENGTH    US_MR_CHRL_8_BIT
+#define USART_SERIAL_PARITY         US_MR_PAR_NO
+#define USART_SERIAL_STOP_BIT       false
+
+#define COMMS_UART					USART_SERIAL	// This has to be set for the comms module to work.
 
 void configure_console(void);
 void configure_serial(void);

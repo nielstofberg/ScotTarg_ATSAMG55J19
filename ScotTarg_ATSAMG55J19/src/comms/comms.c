@@ -10,6 +10,10 @@
 int buffer_pointer = 0;
 char rec_buffer[255];
 
+bool get_command_from_buffer(Command *msg);
+void clear_buffer(void);
+void send_comamand(Command cmd);
+
 /**
 * \brief send the raw timings of a good shot
 *
@@ -37,7 +41,7 @@ void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,ui
 	for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
 	{
 		putchar(msg[a]);
-		usart_serial_putchar(USART_SERIAL, msg[a]);
+		usart_serial_putchar(COMMS_UART, msg[a]);
 	}
 }
 
@@ -60,8 +64,13 @@ void send_bad_shot(uint16_t shotId)
 	for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
 	{
 		putchar(msg[a]);
-		usart_serial_putchar(USART_SERIAL, msg[a]);
+		usart_serial_putchar(COMMS_UART, msg[a]);
 	}
+}
+
+void send_comamand(Command cmd)
+{
+
 }
 
 /**
@@ -83,26 +92,47 @@ void send_test(void)
 	}
 }
 
+///**
+//* \brief Read any available bytes
+//*
+//* \return void
+//*/
+//void read_byte(void)
+//{
+	//bool checkBuff = false;
+	//uint8_t buff;
+	//while (usart_serial_is_rx_ready(COMMS_UART))
+	//{
+		//usart_serial_getchar(COMMS_UART, &buff);
+		//rec_buffer[buffer_pointer] = buff;
+		//buffer_pointer++;
+		//checkBuff = true;
+	//}
+	//if (checkBuff)
+	//{
+		//Command myMessage;
+		//get_command_from_buffer(&myMessage);
+	//}
+//}
+
 /**
-* \brief Read any available bytes
+* \brief Event handler for USART_SERIAL
 *
 * \return void
 */
-void read_byte(void)
+void byte_received()
 {
-	bool checkBuff = false;
 	uint8_t buff;
-	while (usart_serial_is_rx_ready(USART_SERIAL))
+	if (usart_serial_is_rx_ready(COMMS_UART))
 	{
-		usart_serial_getchar(USART_SERIAL, &buff);
+		usart_serial_getchar(COMMS_UART, &buff);
 		rec_buffer[buffer_pointer] = buff;
 		buffer_pointer++;
-		checkBuff = true;
-	}
-	if (checkBuff)
-	{
-		Message myMessage;
-		get_command_from_buffer(&myMessage);
+		Command myMessage;
+		if (get_command_from_buffer(&myMessage))
+		{
+			//do something with command
+		}
 	}
 }
 
@@ -111,55 +141,58 @@ void read_byte(void)
 *
 * \return True if valid message was read. False if the buffer contains no valid message.
 */
-bool get_command_from_buffer(Message *msg)
+bool get_command_from_buffer(Command *cmd)
 {
 	int startIndex = 0;
+	int endIndex = 0;
 	int readIndex = 0;
+	int n;
+
 	while (rec_buffer[startIndex] != START_BYTE)
 	{
 		startIndex++;
 		if (startIndex >= buffer_pointer)
 		{
+			clear_buffer(); // No bytes have been received that are part of a valid message
 			return false;
 		}
 	}
-	readIndex = startIndex +1;
+	readIndex = startIndex + 1;
 	
 	if (readIndex >= buffer_pointer) 
 	{
 		return false;
 	}
-	else if (rec_buffer[readIndex] > BUFFER_SIZE)
+	else if (rec_buffer[readIndex] > BUFFER_SIZE) // If the length byte is bigger than the length of the buffer, this cannot be a valid packet clear the buffer and start over.
 	{
-		clearbuffer();
+		clear_buffer();
 		return false;
 	}
-	else if(rec_buffer[readIndex] > (buffer_pointer - startIndex))
+	else if(rec_buffer[readIndex] > (buffer_pointer - startIndex + 1)) //If the length byte is more that what has already been received, return and wait for the rest of the message.
 	{
 		return false;
 	}
-	else if (rec_buffer[startIndex + rec_buffer[readIndex]-1])
+	else
 	{
-		clearbuffer();
+		endIndex = startIndex + rec_buffer[readIndex] - 1;
+	}
+	if (rec_buffer[endIndex] != END_BYTE) //If there is no end byte at the end of the message, this is not a valid command. Clear the buffer and start over. 
+	{
+		clear_buffer();
 		return false;
 	}
-	return false;
+	// From this point we know that it is a valid command;
+	readIndex++;
+	cmd->command = rec_buffer[readIndex++];
+	for (n = 0; n < endIndex - startIndex - 3; n++)
+	{
+		cmd->data[n] = rec_buffer[readIndex++];
+	}
+	cmd->data[n] = EOL;
+	return true;
 }
 
-void FLEXCOM6_Handler()
-{
-	uint8_t buff;
-	if (usart_serial_is_rx_ready(USART_SERIAL))
-	{
-		usart_serial_getchar(USART_SERIAL, &buff);
-		rec_buffer[buffer_pointer] = buff;
-		buffer_pointer++;
-		Message myMessage;
-		get_command_from_buffer(&myMessage);
-	}
-}
-
-void clearbuffer(void)
+void clear_buffer(void)
 {
 	for (int n = 0; n < buffer_pointer; n++)
 	{

@@ -8,8 +8,7 @@
 #ifndef CONF_GPIO_H_
 #define CONF_GPIO_H_
 
-#include <pio.h>
-#include <ioport.h>
+#include "asf.h"
 
 //Pin Allocations
 #define MIC1_PIN    EXT1_PIN_5 //  IOPORT_CREATE_PIN(PIOA, 26)	//Ext1 pin5
@@ -21,12 +20,6 @@
 #define MIC2_PIO	PIO_PA25
 #define MIC3_PIO	PIO_PA24
 #define MIC4_PIO	PIO_PA29
-
-#define MOTOR_PIN_1 EXT1_PIN_13
-#define MOTOR_PIN_2 EXT1_PIN_14
-#define MOTOR_PIN_3 EXT4_PIN_5
-#define MOTOR_PIN_4 EXT4_PIN_9
-
 
 //! Function Headers
 void gpio_init(void);

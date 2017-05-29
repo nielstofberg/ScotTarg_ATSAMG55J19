@@ -8,7 +8,7 @@
 #include "stepmotor.h"
 
 int tc00_ms = 0;
-uint32_t motorpins[] = {MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4};
+uint32_t motorpins[4] = {MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4};
 uint8_t motorpinindex = 0;
 uint32_t motorstepcount = 0;
 uint32_t motorsteptarget = 0;
@@ -20,7 +20,7 @@ int8_t motorstepdir = FORWARD;
  
  returns: 
  */
- void TC0_Handler(void)
+ void motor_timer_handler(void)
  {
 	tc00_ms += 1;
 	 /* Clear status bit to acknowledge interrupt */
@@ -29,23 +29,23 @@ int8_t motorstepdir = FORWARD;
 	 if (tc00_ms>=2)
 	 {
 		tc00_ms = 0;
-		stepmotor();
+		motor_step();
 	 }
  }
 
-void startmotor(uint16_t dir, uint32_t steps)
+void motor_start(uint16_t dir, uint32_t steps)
 {
 	motorstepdir = dir;
 	motorsteptarget = steps;
-	tc_start(TC0,0);
+	tc_start(MOTOR_TIMER, MOTOR_TIMER_CHANNEL);
 }
 
-void stepmotor(void)
+void motor_step(void)
 {
 	motorstepcount += 1;
 	if (motorstepcount > motorsteptarget)
 	{
-		stopmotor();
+		motor_stop();
 	}
 	else
 	{
@@ -73,7 +73,7 @@ void stepmotor(void)
 	}
 }
 
-void stopmotor(void)
+void motor_stop(void)
 {
 	tc_stop(TC0, 0);
 	pio_set_pin_low(motorpins[motorpinindex]);

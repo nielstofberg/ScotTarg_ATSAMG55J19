@@ -5,9 +5,8 @@
  *  Author: Niel
  */ 
 
- #include "conf_uart_serial.h"
- #include <uart_serial.h>
- #include <stdio_serial.h>
+#include "conf_uart_serial.h"
+#include "comms/comms.h"
 
  /**
  * \brief Configure UART console.
@@ -52,4 +51,9 @@ void configure_serial(void)
 
 	NVIC_EnableIRQ((IRQn_Type) FLEXCOM6_IRQn);
 	usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
+}
+
+void FLEXCOM6_Handler()
+{
+	byte_received();
 }

@@ -84,7 +84,6 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
-#include "asf.h"
 #include "scottarg.h"
 
 /**
@@ -103,7 +102,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	putchar('X');
 	if (systemState != INITIALISING)
 	{
-		startmotor(FORWARD, 200);
+		//motor_start(FORWARD, 200);
 	}
 }
 
@@ -112,151 +111,152 @@ void button_press_handler(const uint32_t id, const uint32_t index)
  *
  * \return Unused (ANSI-C compatibility).
  */
-int main(void) 
-{
-	sysclk_init();
-	board_init();
-	gpio_init();
-	configure_tc00();
-	configure_tc01();
-	configure_console();
-	configure_serial();
-	pio_enable_button_interrupt();
+ int main(void)
+ {
+	 sysclk_init();
+	 board_init();
+	 gpio_init();
+	 motor_pins_init();
+	 motor_timer_init();
+	 configure_shot_timer();
+	 configure_serial();
+	 configure_console();
+	 pio_enable_button_interrupt();
 
-	int clockSpeed = sysclk_get_cpu_hz();
-	bool mic1_flag = false;
-	bool mic2_flag = false;
-	bool mic3_flag = false;
-	bool mic4_flag = false;
-	uint16_t mic1_time = 0;
-	uint16_t mic2_time = 0;
-	uint16_t mic3_time = 0;
-	uint16_t mic4_time = 0;
-	uint32_t timeout_marker = 0;
-	uint32_t shot_space_marker = 0;
-	uint32_t led_freq_marker = 0;
+	 int clockSpeed = sysclk_get_cpu_hz();
+	 bool mic1_flag = false;
+	 bool mic2_flag = false;
+	 bool mic3_flag = false;
+	 bool mic4_flag = false;
+	 uint16_t mic1_time = 0;
+	 uint16_t mic2_time = 0;
+	 uint16_t mic3_time = 0;
+	 uint16_t mic4_time = 0;
+	 uint32_t timeout_marker = 0;
+	 uint32_t shot_space_marker = 0;
+	 uint32_t led_freq_marker = 0;
 
-	/* Setup SysTick Timer for 1 msec interrupts */
-	if (SysTick_Config(clockSpeed / 1000))
-	{
-		while (1) 
-		{  /* Capture error */
-		}
-	}
+	 //!  Setup SysTick Timer for 1 msec interrupts
+	 if (SysTick_Config(clockSpeed / 1000))
+	 {
+		 while (1)
+		 {  
+			// Capture error
+		 }
+	 }
+	 while (1)
+	 {
+		 if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
+		 {
+			 led_freq_marker = ul_ms_ticks;
+			 ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
+		 }
 
-	while (1) 
-	{
-		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
-		{
-			led_freq_marker = ul_ms_ticks;
-			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
-		}
+		 //read_byte();
 
-		//read_byte();
+		 if (systemState == WAITING)
+		 {
+			 //! Scan pins for action
+			 mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+			 mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+			 mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+			 mic4_flag = !ioport_get_pin_level(MIC4_PIN);
 
-		if (systemState == WAITING)
-		{
-			//! Scan pins for action
-			mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-			mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-			mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-			mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+			 if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
+			 {
+				 tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
+				 int timeCount = 0;
+				 timeout_marker = ul_ms_ticks;
+				 systemState = SHOTSTARTED;
 
-			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
-			{
-				tc_start(TC1,0);
-				int timeCount = 0;
-				timeout_marker = ul_ms_ticks;
-				systemState = SHOTSTARTED;
-				do 
-				{
-					if (!mic1_flag)
-					{
-						mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-						if (mic1_flag)
-						{
-							mic1_time = timeCount;
-						}
-					}
-					if (!mic2_flag)
-					{
-						mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-						if (mic2_flag)
-						{
-							mic2_time = timeCount;
-						}
-					}
-					if (!mic3_flag)
-					{
-						mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-						if (mic3_flag)
-						{
-							mic3_time = timeCount;
-						}
-					}
-					if (!mic4_flag)
-					{
-						mic4_flag = !ioport_get_pin_level(MIC4_PIN);
-						if (mic4_flag)
-						{
-							mic4_time = timeCount;
-						}
-					}
-					timeCount = tc_read_cv(TC1,0);
+				 do
+				 {
+					 if (!mic1_flag)
+					 {
+						 mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+						 if (mic1_flag)
+						 {
+							 mic1_time = timeCount;
+						 }
+					 }
+					 if (!mic2_flag)
+					 {
+						 mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+						 if (mic2_flag)
+						 {
+							 mic2_time = timeCount;
+						 }
+					 }
+					 if (!mic3_flag)
+					 {
+						 mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+						 if (mic3_flag)
+						 {
+							 mic3_time = timeCount;
+						 }
+					 }
+					 if (!mic4_flag)
+					 {
+						 mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+						 if (mic4_flag)
+						 {
+							 mic4_time = timeCount;
+						 }
+					 }
+					 timeCount = tc_read_cv(TC1,0);
 
-					if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
-					{
-						systemState = SHOTRECORDED;
-					}
+					 if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
+					 {
+						 systemState = SHOTRECORDED;
+					 }
 
-					if (ul_ms_ticks-timeout_marker > SHOT_TIME_OUT)
-					{
-						systemState = SHOTSFAILED;
-						break;
-					}
-				} while (systemState == SHOTSTARTED);
-				tc_stop(TC1,0);
-			}
-		}
-		else
-		{
-			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
-			{
-				if (systemState == SHOTRECORDED)
-				{
-					send_good_shot(mic1_time, mic2_time, mic3_time, mic4_time, 0);
-				}
-				else
-				{
-					send_bad_shot(0);
-				}
+					 if (ul_ms_ticks-timeout_marker > SHOT_TIME_OUT)
+					 {
+						 systemState = SHOTSFAILED;
+						 break;
+					 }
+				 } while (systemState == SHOTSTARTED);
+				 tc_stop(SHOT_TIMER, SHOT_TIMER_CHANNEL);
+			 }
+		 }
+		 else
+		 {
+			 if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
+			 {
+				 if (systemState == SHOTRECORDED)
+				 {
+					 send_good_shot(mic1_time, mic2_time, mic3_time, mic4_time, 0);
+				 }
+				 else
+				 {
+					 send_bad_shot(0);
+				 }
 
-				systemState = SHOTCOMPLETE;
-			}
-			else if (systemState == SHOTCOMPLETE)
-			{
-				//!ADvance Paper
-				startmotor(FORWARD, 200);
-				// Reset
-				mic1_flag = false;
-				mic2_flag = false;
-				mic3_flag = false;
-				mic4_flag = false;
-				mic1_time = 0;
-				mic2_time = 0;
-				mic3_time = 0;
-				mic4_time = 0;
-				systemState = INITIALISING;
-				shot_space_marker = ul_ms_ticks;
-			}
-			else if (systemState == INITIALISING)
-			{
-				if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
-				{
-					systemState = WAITING;
-				}
-			}
-		}
-	}
-}
-
+				 systemState = SHOTCOMPLETE;
+			 }
+			 else if (systemState == SHOTCOMPLETE)
+			 {
+				 //! ADvance Paper
+				 motor_start(FORWARD, 200);
+				 // Reset
+				 mic1_flag = false;
+				 mic2_flag = false;
+				 mic3_flag = false;
+				 mic4_flag = false;
+				 mic1_time = 0;
+				 mic2_time = 0;
+				 mic3_time = 0;
+				 mic4_time = 0;
+				 systemState = INITIALISING;
+				 shot_space_marker = ul_ms_ticks;
+			 }
+			 else if (systemState == INITIALISING)
+			 {
+				 if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
+				 {
+					 systemState = WAITING;
+				 }
+			 }
+		 }
+	 }
+ }

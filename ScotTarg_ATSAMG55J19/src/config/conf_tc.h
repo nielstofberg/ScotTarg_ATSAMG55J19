@@ -8,7 +8,6 @@
  #define CONF_TC_H_
 
  /** Frequincy of TC0 interrupts */
- #define TC00_FREQ			1000
 
  /**
 	Prescaler options:
@@ -16,13 +15,13 @@
 	PRESCALE 1 == Prescale 1/8 (Clock time)
 	PRESCALE 2 == Prescale 1/32 (Clock time)
  */
- #define PRESCALE			2
 
- /** GLOBAL VARIABLES **/
- //volatile int tc00_ms;	//! holds the number of times TC0 interrupt has occurred
+ #define SHOT_TIMER				TC1
+ #define SHOT_TIMER_ID			ID_TC3 // Timer 1, Channel 0 = ID3
+ #define SHOT_TIMER_CHANNEL		0
+ #define SHOT_TIMER_PRESCALE	2
 
- void configure_tc00(void);
- void configure_tc01(void);
+ void configure_shot_timer(void);
 
 
  #endif //TIMER_H_
