@@ -1,90 +1,15 @@
-/**
- * \file
- *
- * \brief Clock system example 1.
- *
- * Copyright (c) 2011-2015 Atmel Corporation. All rights reserved.
- *
- * \asf_license_start
- *
- * \page License
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * \asf_license_stop
- *
- */
-
-/**
- * \mainpage
- *
- * \section intro Introduction
- * This example shows how to initialize the clock system and blink a LED
- * at a constant 1 Hz frequency.
- *
- * \section files Main files:
- * - clock_example1_sam.c: clock system example application
- * - conf_board.h: board initialization configuration
- * - conf_clock.h: system clock configuration
- *
- * \section deviceinfo Device Info
- * All SAM devices supported by ASF can be used.
- *
- * \section exampledescription Description of the example
- * A delay routine is used to time the interval between each toggling of a LED.
- * The duration of the delay routine is computed from the frequency of the
- * configured system clock source.
- *
- * The main system clock source and prescalers, along with any PLL
- * and/or DFLL configuration, if supported, are defined in conf_clock.h.
- * Changing any of the defines -- #CONFIG_SYSCLK_SOURCE,
- * #CONFIG_SYSCLK_CPU_DIV, etc. -- should not change the frequency of the
- * blinking LED.
- *
- * Refer to the \ref clk_group API documentation for further information on the
- * configuration.
- *
- * \section compinfo Compilation Info
- * This software was written for the GNU GCC and IAR for SAM.
- * Other compilers may or may not work.
- *
- * \section contactinfo Contact Information
- * For further information, visit
- * <A href="http://www.atmel.com/">Atmel</A>.\n
- * Support and FAQ: http://www.atmel.com/design-support/
- *
- */
 /*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+ * scottarg.c
+ *
+ * Created: 06/05/2017 17:20:12
+ * Author: NielSt
+ */ 
 
 #include "scottarg.h"
+
+void command_handler(Command cmd);
+void set_paper_advance(uint16_t adv);
+void return_paper_advance(void);
 
 /**
  * \brief Handler for System Tick interrupt.
@@ -102,7 +27,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	putchar('X');
 	if (systemState != INITIALISING)
 	{
-		//motor_start(FORWARD, 200);
+		motor_start(FORWARD, motor_advance);
 	}
 }
 
@@ -124,6 +49,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	 pio_enable_button_interrupt();
 
 	 int clockSpeed = sysclk_get_cpu_hz();
+	 motor_advance = 2 * MOTOR_STEP_SIZE;
 	 bool mic1_flag = false;
 	 bool mic2_flag = false;
 	 bool mic3_flag = false;
@@ -152,7 +78,10 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 			 ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
 		 }
 
-		 //read_byte();
+		 if (cmd_rec_flag)
+		 {
+			command_handler(new_command);
+		 }
 
 		 if (systemState == WAITING)
 		 {
@@ -237,7 +166,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 			 else if (systemState == SHOTCOMPLETE)
 			 {
 				 //! ADvance Paper
-				 motor_start(FORWARD, 200);
+				 motor_start(FORWARD, motor_advance);
 				 // Reset
 				 mic1_flag = false;
 				 mic2_flag = false;
@@ -260,3 +189,36 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 		 }
 	 }
  }
+
+void command_handler(Command cmd)
+{
+	uint16_t data;
+	cmd_rec_flag = false;
+	switch (cmd.command)
+	{
+		case CMD_SET_ADVANCE:
+			data = cmd.data[0];
+			set_paper_advance(data);
+			break;
+		
+		case CMD_GET_ADVANCE:
+			return_paper_advance();
+			break;
+
+		default:
+			break;
+	}
+}
+
+void set_paper_advance(uint16_t adv)
+{
+	motor_advance = adv * MOTOR_STEP_SIZE;
+}
+
+void return_paper_advance(void)
+{
+	Command cmd;
+	cmd.command = CMD_SET_ADVANCE;
+	cmd.data[0] = 0x00 | motor_advance;
+	send_command(cmd);
+}

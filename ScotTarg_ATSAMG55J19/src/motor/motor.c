@@ -5,7 +5,9 @@
  *  Author: Niel
  */ 
 
-#include "stepmotor.h"
+#include "motor.h"
+#include "config/conf_motor.h"
+
 
 int tc00_ms = 0;
 uint32_t motorpins[4] = {MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4};

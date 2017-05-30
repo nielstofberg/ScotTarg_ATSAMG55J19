@@ -6,7 +6,7 @@
  */ 
 
  #include "conf_motor.h"
- //#include "motor/stepmotor.h"
+ #include "motor/motor.h"
 
  void motor_pins_init(void)
  {

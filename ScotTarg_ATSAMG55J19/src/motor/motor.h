@@ -6,11 +6,10 @@
  */ 
 
 
-#ifndef STEPMOTOR_H_
-#define STEPMOTOR_H_
+#ifndef MOTOR_H_
+#define MOTOR_H_
 
 #include "asf.h"
-#include "conf_motor.h"
 
 //#ifndef MOTOR_TIMER
 //#define MOTOR_TIMER
@@ -39,6 +38,7 @@
 #define MOTOR_PIN_COUNT	4
 #define FORWARD			1
 #define BACKWARD		0
+#define MOTOR_STEP_SIZE 100 //! Number of steps in one mm
 
 //void TC0_Handler(void);
 void motor_start(uint16_t dir, uint32_t steps);
@@ -48,4 +48,4 @@ void motor_step(void);
 void motor_stop(void);
 
 
-#endif /* STEPMOTOR_H_ */
+#endif /* MOTOR_H_ */

@@ -12,9 +12,9 @@
 #include "config/conf_tc.h"
 #include "config/conf_gpio.h"
 #include "config/conf_uart_serial.h"
-#include "comms/comms.h"
 #include "config/conf_motor.h"
-#include "motor/stepmotor.h"
+#include "comms/comms.h"
+#include "motor/motor.h"
 
 #define INITIALISING	0
 //! Waiting for a shot or another command
@@ -32,5 +32,6 @@
 
 volatile uint32_t ul_ms_ticks = 0;	//! Global ul_ms_ticks in milliseconds since start of application
 uint16_t systemState = INITIALISING;
+uint16_t motor_advance = MOTOR_STEP_SIZE;
 
 #endif /* SCOTTARG_H_ */

@@ -1114,16 +1114,16 @@
     <Compile Include="src\config\conf_motor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\motor\stepmotor.c">
+    <Compile Include="src\motor\motor.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\motor\stepmotor.h">
+    <Compile Include="src\motor\motor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\scottarg.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\scottarg_main.c">
+    <Compile Include="src\scottarg.c">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\thirdparty\CMSIS\Lib\GCC\libarm_cortexM4lf_math.a">

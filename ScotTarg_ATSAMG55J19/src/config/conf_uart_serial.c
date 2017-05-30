@@ -51,6 +51,8 @@ void configure_serial(void)
 
 	NVIC_EnableIRQ((IRQn_Type) FLEXCOM6_IRQn);
 	usart_enable_interrupt(USART_SERIAL, US_IER_RXRDY);
+
+	cmd_rec_flag = false;
 }
 
 void FLEXCOM6_Handler()

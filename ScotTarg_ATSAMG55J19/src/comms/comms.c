@@ -12,7 +12,6 @@ char rec_buffer[255];
 
 bool get_command_from_buffer(Command *msg);
 void clear_buffer(void);
-void send_comamand(Command cmd);
 
 /**
 * \brief send the raw timings of a good shot
@@ -68,7 +67,7 @@ void send_bad_shot(uint16_t shotId)
 	}
 }
 
-void send_comamand(Command cmd)
+void send_command(Command cmd)
 {
 
 }
@@ -88,7 +87,7 @@ void send_test(void)
 
 	for (int a=0; a<4; a++)
 	{
-		usart_serial_putchar(USART_SERIAL, msg[a]);
+		usart_serial_putchar(COMMS_UART, msg[a]);
 	}
 }
 
@@ -128,10 +127,10 @@ void byte_received()
 		usart_serial_getchar(COMMS_UART, &buff);
 		rec_buffer[buffer_pointer] = buff;
 		buffer_pointer++;
-		Command myMessage;
-		if (get_command_from_buffer(&myMessage))
+		if (get_command_from_buffer(&new_command))
 		{
 			//do something with command
+			cmd_rec_flag = true;
 		}
 	}
 }
