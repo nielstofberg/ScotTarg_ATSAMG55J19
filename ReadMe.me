@@ -16,6 +16,12 @@ After the opening '<' follows a count byte. The count byte holds the length of t
 The third byte is the command.
 Byte 4 to byte [count-1] are data bytes that hold the relevant data described bellow.
 
+For each command there will be a reply.
+The first two bytes of a reply are the same as the command. 
+The third byte is an ACK(0x06) if the command was executed or a NAK(0x15) if there was a problem with the command.
+Byte four is the command that the reply is for.
+Byte five to byte [count-1] are data bytes that hold the data requested in the command. If the command was not a requesst for data, there will be no bytes here.
+
 Shot Packet:
 ============
 Command: 0x20
@@ -25,7 +31,9 @@ Byte 3 & 4: 16 bit time count of sensor 1 (Left bottom)
 Byte 5 & 6: 16 bit time count of sensor 2 (Left top)
 Byte 7 & 8: 16 bit time count of sensor 3 (Right top)
 Byte 9 & 10: 16 bit time count of sensor 4 (Right bottom)
-This is the only packet that gets sent from this software without necessaraly having having received a request. This packet gets sent immediately after a shot was registered, but can be requested again by sending a Resend Shot command
+* Where 16 bit values are sent, the upper 8 bits are in the first byte and the lower 8 bits are in the second byte.
+**This is the only packet that gets sent from this software without necessaraly having having received a request. This packet gets sent immediately after a shot was registered, but can be requested again by sending a Resend Shot command
+When requested, the length is 14 with byt 3 being an ACK and everything else moves up one space.
 
 
 Resend Shot:
@@ -33,7 +41,7 @@ Resend Shot:
 Command: 0x21
 Total Length: 6
 Data byte 1 & 2: 16 bit ID of shot to send
-The reply to this command is a complete shot packet for the requested shot.
+For the reply, see Shot Packet **
 
 Set Paper Advance:
 ==================
@@ -47,4 +55,4 @@ Get Paper Advance:
 Command: 0x23
 Total Length: 4
 No data bytes.
-Reply is a full Set paper advance command
+Reply is a full Set paper advance command with byte 3 being an ACK etc.

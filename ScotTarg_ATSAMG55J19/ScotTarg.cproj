@@ -586,6 +586,9 @@
     <Folder Include="src\motor" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\types.h">
+      <SubType>compile</SubType>
+    </Compile>
     <None Include="src\ASF\common\services\serial\sam_uart\uart_serial.h">
       <SubType>compile</SubType>
     </None>

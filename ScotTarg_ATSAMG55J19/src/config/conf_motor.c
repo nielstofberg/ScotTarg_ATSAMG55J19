@@ -58,6 +58,6 @@
 
  void TC0_Handler(void)
  {
-	//motor_timer_handler();
+	motor_timer_handler();
  }
 

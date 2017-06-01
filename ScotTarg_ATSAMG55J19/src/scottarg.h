@@ -13,6 +13,7 @@
 #include "config/conf_gpio.h"
 #include "config/conf_uart_serial.h"
 #include "config/conf_motor.h"
+#include "types.h"
 #include "comms/comms.h"
 #include "motor/motor.h"
 
@@ -29,6 +30,7 @@
 #define SHOT_TIME_OUT	4
 #define SHOT_SPACING	5000
 
+Shot last_shot;
 
 volatile uint32_t ul_ms_ticks = 0;	//! Global ul_ms_ticks in milliseconds since start of application
 uint16_t systemState = INITIALISING;

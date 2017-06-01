@@ -10,6 +10,7 @@
 void command_handler(Command cmd);
 void set_paper_advance(uint16_t adv);
 void return_paper_advance(void);
+void resend_shot(uint16_t id);
 
 /**
  * \brief Handler for System Tick interrupt.
@@ -49,7 +50,6 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	 pio_enable_button_interrupt();
 
 	 int clockSpeed = sysclk_get_cpu_hz();
-	 motor_advance = 2 * MOTOR_STEP_SIZE;
 	 bool mic1_flag = false;
 	 bool mic2_flag = false;
 	 bool mic3_flag = false;
@@ -61,6 +61,9 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	 uint32_t timeout_marker = 0;
 	 uint32_t shot_space_marker = 0;
 	 uint32_t led_freq_marker = 0;
+
+	 motor_advance = 2 * MOTOR_STEP_SIZE;
+	 last_shot.shot_id = 0;
 
 	 //!  Setup SysTick Timer for 1 msec interrupts
 	 if (SysTick_Config(clockSpeed / 1000))
@@ -79,20 +82,20 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 		 }
 
 		 if (cmd_rec_flag)
-		 {
+		{
 			command_handler(new_command);
-		 }
+		}
 
-		 if (systemState == WAITING)
-		 {
-			 //! Scan pins for action
-			 mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-			 mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-			 mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-			 mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+		if (systemState == WAITING)
+		{
+			//! Scan pins for action
+			mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+			mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+			mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+			mic4_flag = !ioport_get_pin_level(MIC4_PIN);
 
-			 if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
-			 {
+			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
+			{
 				 tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
 				 int timeCount = 0;
 				 timeout_marker = ul_ms_ticks;
@@ -150,55 +153,72 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 		 }
 		 else
 		 {
-			 if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
-			 {
-				 if (systemState == SHOTRECORDED)
-				 {
-					 send_good_shot(mic1_time, mic2_time, mic3_time, mic4_time, 0);
-				 }
-				 else
-				 {
-					 send_bad_shot(0);
-				 }
-
-				 systemState = SHOTCOMPLETE;
-			 }
-			 else if (systemState == SHOTCOMPLETE)
-			 {
-				 //! ADvance Paper
-				 motor_start(FORWARD, motor_advance);
-				 // Reset
-				 mic1_flag = false;
-				 mic2_flag = false;
-				 mic3_flag = false;
-				 mic4_flag = false;
-				 mic1_time = 0;
-				 mic2_time = 0;
-				 mic3_time = 0;
-				 mic4_time = 0;
-				 systemState = INITIALISING;
-				 shot_space_marker = ul_ms_ticks;
-			 }
-			 else if (systemState == INITIALISING)
-			 {
-				 if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
-				 {
-					 systemState = WAITING;
-				 }
-			 }
-		 }
-	 }
- }
+			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
+			{
+				if (systemState == SHOTRECORDED)
+				{
+					uint16_t shotId = last_shot.shot_id + 1;
+					Shot shotData = {shotId, mic1_time, mic2_time, mic3_time, mic4_time};
+					send_good_shot(shotData, false);
+					last_shot = shotData;
+				}
+				else
+				{
+					send_bad_shot(0, false);
+				}
+				systemState = SHOTCOMPLETE;
+			}
+			else if (systemState == SHOTCOMPLETE)
+			{
+				//! ADvance Paper
+				motor_start(FORWARD, motor_advance);
+				// Reset
+				mic1_flag = false;
+				mic2_flag = false;
+				mic3_flag = false;
+				mic4_flag = false;
+				mic1_time = 0;
+				mic2_time = 0;
+				mic3_time = 0;
+				mic4_time = 0;
+				systemState = INITIALISING;
+				shot_space_marker = ul_ms_ticks;
+			}
+			else if (systemState == INITIALISING)
+			{
+				if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
+				{
+					systemState = WAITING;
+				}
+			}
+		}
+	}
+}
 
 void command_handler(Command cmd)
 {
 	uint16_t data;
-	cmd_rec_flag = false;
 	switch (cmd.command)
 	{
+		case CMD_SHOT_RESEND:
+			if (cmd.data_count == 2)
+			{
+				resend_shot((uint16_t)(cmd.data[0] << 8 | cmd.data[1]));
+			}
+			else
+			{
+				cmd.reply = true;
+				cmd.ack = false;
+				send_command(cmd);
+			}
+			break;
 		case CMD_SET_ADVANCE:
 			data = cmd.data[0];
 			set_paper_advance(data);
+			cmd.data_count = 0;
+			cmd.reply = true;
+			cmd.ack = true;
+			send_command(cmd);
 			break;
 		
 		case CMD_GET_ADVANCE:
@@ -208,6 +228,7 @@ void command_handler(Command cmd)
 		default:
 			break;
 	}
+	cmd_rec_flag = false;
 }
 
 void set_paper_advance(uint16_t adv)
@@ -217,8 +238,19 @@ void set_paper_advance(uint16_t adv)
 
 void return_paper_advance(void)
 {
+	int ma = motor_advance / MOTOR_STEP_SIZE;
 	Command cmd;
 	cmd.command = CMD_SET_ADVANCE;
-	cmd.data[0] = 0x00 | motor_advance;
+	cmd.data[0] = 0x00 | ma;
+	cmd.data_count = 1;
+	cmd.reply = true;
+	cmd.ack = true;
 	send_command(cmd);
+}
+
+void resend_shot(uint16_t id)
+{
+	Shot shot = last_shot;
+	shot.shot_id = id;
+	send_good_shot(shot, true);
 }

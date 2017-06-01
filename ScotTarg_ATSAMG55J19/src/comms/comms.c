@@ -18,30 +18,27 @@ void clear_buffer(void);
 *
 * \return void
 */
-void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,uint16_t mic4_time, uint16_t shotId)
+void send_good_shot(Shot shot_data, bool reply)
 {
-	char msg[15];
-	msg[0] = '<';
-	msg[14] = '>';
-	msg[1] = 0;
-	msg[2] = mic1_time >> 8;
-	msg[3] = mic1_time;
-	msg[4] = 0;
-	msg[5] = mic2_time >> 8;
-	msg[6] = mic2_time;
-	msg[7] = 0;
-	msg[8] = mic3_time >> 8;
-	msg[9] = mic3_time;
-	msg[10] = 0;
-	msg[11] = mic4_time >> 8;
-	msg[12] = mic4_time;
-	msg[13] = (char)shotId;
+	Command cmd;
+	uint16_t counter = 0;
+	cmd.command = (reply) ? CMD_SHOT_RESEND : CMD_SHOT_PACKET;
+	cmd.reply = reply;
+	cmd.ack = true;
 
-	for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
-	{
-		putchar(msg[a]);
-		usart_serial_putchar(COMMS_UART, msg[a]);
-	}
+	cmd.data[counter++] = (shot_data.shot_id >> 8) & 0xFF;
+	cmd.data[counter++] = shot_data.shot_id & 0xFF;
+	cmd.data[counter++] = (shot_data.mic1_time >> 8) & 0xFF;
+	cmd.data[counter++] = shot_data.mic1_time & 0xFF;
+	cmd.data[counter++] = (shot_data.mic2_time >> 8) & 0xFF;
+	cmd.data[counter++] = shot_data.mic2_time & 0xFF;
+	cmd.data[counter++] = (shot_data.mic3_time >> 8) & 0xFF;
+	cmd.data[counter++] = shot_data.mic3_time & 0xFF;
+	cmd.data[counter++] = (shot_data.mic4_time >> 8) & 0xFF;
+	cmd.data[counter++] = shot_data.mic4_time & 0xFF;
+	cmd.data_count = counter;
+
+	send_command(cmd);
 }
 
 /**
@@ -49,27 +46,48 @@ void send_good_shot(uint16_t mic1_time, uint16_t mic2_time,uint16_t mic3_time,ui
 *
 * \return void
 */
-void send_bad_shot(uint16_t shotId)
+void send_bad_shot(uint16_t shotId, bool reply)
 {
-	char msg[15];
-	msg[0] = '<';
-	msg[14] = '>';
-	msg[3] = 1;
-	msg[6] = 1;
-	msg[9] = 1;
-	msg[12] = 1;
-	msg[13] = (char)shotId;
+	Command cmd;
+	uint16_t counter = 0;
+	cmd.command = CMD_SHOT_PACKET;
+	cmd.reply = reply;
+	cmd.ack = true;
 
-	for (uint32_t a=0; a < ((uint32_t)sizeof(msg)); a++)
-	{
-		putchar(msg[a]);
-		usart_serial_putchar(COMMS_UART, msg[a]);
-	}
+	cmd.data[counter++] = shotId & 0xFF;
+	cmd.data[counter++] = (shotId >> 8) & 0xFF;
+	cmd.data_count = 2;
+	send_command(cmd);
 }
 
+/**
+* \brief Send a message that will be created from the data in the Command argument
+*
+* \return void
+*/
 void send_command(Command cmd)
 {
-
+	Byte msg[50];
+	int counter = 0;
+	int dataCtr = 0;
+	msg[counter++] = START_BYTE;
+	counter++;
+	if (cmd.reply)
+	{
+		msg[counter++] = (cmd.ack) ? ACK: NAK;
+	}
+	msg[counter++] = cmd.command;
+	while (dataCtr < cmd.data_count)
+	{
+		msg[counter++] = cmd.data[dataCtr++];
+	}
+	msg[counter++] = END_BYTE;
+	msg[1] = counter;
+	for (int n = 0; n < counter; n++)
+	{
+		putchar(msg[n]);
+		usart_serial_putchar(COMMS_UART, msg[n]);
+	}
 }
 
 /**
@@ -91,29 +109,6 @@ void send_test(void)
 	}
 }
 
-///**
-//* \brief Read any available bytes
-//*
-//* \return void
-//*/
-//void read_byte(void)
-//{
-	//bool checkBuff = false;
-	//uint8_t buff;
-	//while (usart_serial_is_rx_ready(COMMS_UART))
-	//{
-		//usart_serial_getchar(COMMS_UART, &buff);
-		//rec_buffer[buffer_pointer] = buff;
-		//buffer_pointer++;
-		//checkBuff = true;
-	//}
-	//if (checkBuff)
-	//{
-		//Command myMessage;
-		//get_command_from_buffer(&myMessage);
-	//}
-//}
-
 /**
 * \brief Event handler for USART_SERIAL
 *
@@ -125,12 +120,17 @@ void byte_received()
 	if (usart_serial_is_rx_ready(COMMS_UART))
 	{
 		usart_serial_getchar(COMMS_UART, &buff);
+		if (cmd_rec_flag)
+		{
+			return;
+		}
 		rec_buffer[buffer_pointer] = buff;
 		buffer_pointer++;
 		if (get_command_from_buffer(&new_command))
 		{
 			//do something with command
 			cmd_rec_flag = true;
+
 		}
 	}
 }
@@ -175,7 +175,11 @@ bool get_command_from_buffer(Command *cmd)
 	{
 		endIndex = startIndex + rec_buffer[readIndex] - 1;
 	}
-	if (rec_buffer[endIndex] != END_BYTE) //If there is no end byte at the end of the message, this is not a valid command. Clear the buffer and start over. 
+	if (buffer_pointer <= endIndex)
+	{
+		return false;
+	}
+	else if (rec_buffer[endIndex] != END_BYTE) //If there is no end byte at the end of the message, this is not a valid command. Clear the buffer and start over. 
 	{
 		clear_buffer();
 		return false;
@@ -188,6 +192,9 @@ bool get_command_from_buffer(Command *cmd)
 		cmd->data[n] = rec_buffer[readIndex++];
 	}
 	cmd->data[n] = EOL;
+	cmd->data_count = n;
+	cmd->reply = false;
+	clear_buffer();
 	return true;
 }
 
