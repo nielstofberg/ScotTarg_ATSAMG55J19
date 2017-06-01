@@ -37,51 +37,51 @@ void button_press_handler(const uint32_t id, const uint32_t index)
  *
  * \return Unused (ANSI-C compatibility).
  */
- int main(void)
- {
-	 sysclk_init();
-	 board_init();
-	 gpio_init();
-	 motor_pins_init();
-	 motor_timer_init();
-	 configure_shot_timer();
-	 configure_serial();
-	 configure_console();
-	 pio_enable_button_interrupt();
+int main(void)
+{
+	sysclk_init();
+	board_init();
+	gpio_init();
+	motor_pins_init();
+	motor_timer_init();
+	configure_shot_timer();
+	configure_serial();
+	configure_console();
+	pio_enable_button_interrupt();
 
-	 int clockSpeed = sysclk_get_cpu_hz();
-	 bool mic1_flag = false;
-	 bool mic2_flag = false;
-	 bool mic3_flag = false;
-	 bool mic4_flag = false;
-	 uint16_t mic1_time = 0;
-	 uint16_t mic2_time = 0;
-	 uint16_t mic3_time = 0;
-	 uint16_t mic4_time = 0;
-	 uint32_t timeout_marker = 0;
-	 uint32_t shot_space_marker = 0;
-	 uint32_t led_freq_marker = 0;
+	int clockSpeed = sysclk_get_cpu_hz();
+	bool mic1_flag = false;
+	bool mic2_flag = false;
+	bool mic3_flag = false;
+	bool mic4_flag = false;
+	uint16_t mic1_time = 0;
+	uint16_t mic2_time = 0;
+	uint16_t mic3_time = 0;
+	uint16_t mic4_time = 0;
+	uint32_t timeout_marker = 0;
+	uint32_t shot_space_marker = 0;
+	uint32_t led_freq_marker = 0;
 
-	 motor_advance = 2 * MOTOR_STEP_SIZE;
-	 last_shot.shot_id = 0;
+	motor_advance = 2 * MOTOR_STEP_SIZE;
+	last_shot.shot_id = 0;
 
-	 //!  Setup SysTick Timer for 1 msec interrupts
-	 if (SysTick_Config(clockSpeed / 1000))
-	 {
-		 while (1)
-		 {  
+	//!  Setup SysTick Timer for 1 msec interrupts
+	if (SysTick_Config(clockSpeed / 1000))
+	{
+		while (1)
+		{
 			// Capture error
-		 }
-	 }
-	 while (1)
-	 {
-		 if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
-		 {
-			 led_freq_marker = ul_ms_ticks;
-			 ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
-		 }
+		}
+	}
+	while (1)
+	{
+		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
+		{
+			led_freq_marker = ul_ms_ticks;
+			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
+		}
 
-		 if (cmd_rec_flag)
+		if (cmd_rec_flag)
 		{
 			command_handler(new_command);
 		}
@@ -96,69 +96,69 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 
 			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
 			{
-				 tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
-				 int timeCount = 0;
-				 timeout_marker = ul_ms_ticks;
-				 systemState = SHOTSTARTED;
+				tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
+				int timeCount = 0;
+				timeout_marker = ul_ms_ticks;
+				systemState = SHOTSTARTED;
 
-				 do
-				 {
-					 if (!mic1_flag)
-					 {
-						 mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-						 if (mic1_flag)
-						 {
-							 mic1_time = timeCount;
-						 }
-					 }
-					 if (!mic2_flag)
-					 {
-						 mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-						 if (mic2_flag)
-						 {
-							 mic2_time = timeCount;
-						 }
-					 }
-					 if (!mic3_flag)
-					 {
-						 mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-						 if (mic3_flag)
-						 {
-							 mic3_time = timeCount;
-						 }
-					 }
-					 if (!mic4_flag)
-					 {
-						 mic4_flag = !ioport_get_pin_level(MIC4_PIN);
-						 if (mic4_flag)
-						 {
-							 mic4_time = timeCount;
-						 }
-					 }
-					 timeCount = tc_read_cv(TC1,0);
+				do
+				{
+					if (!mic1_flag)
+					{
+						mic1_flag = !ioport_get_pin_level(MIC1_PIN);
+						if (mic1_flag)
+						{
+							mic1_time = timeCount;
+						}
+					}
+					if (!mic2_flag)
+					{
+						mic2_flag = !ioport_get_pin_level(MIC2_PIN);
+						if (mic2_flag)
+						{
+							mic2_time = timeCount;
+						}
+					}
+					if (!mic3_flag)
+					{
+						mic3_flag = !ioport_get_pin_level(MIC3_PIN);
+						if (mic3_flag)
+						{
+							mic3_time = timeCount;
+						}
+					}
+					if (!mic4_flag)
+					{
+						mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+						if (mic4_flag)
+						{
+							mic4_time = timeCount;
+						}
+					}
+					timeCount = tc_read_cv(TC1, 0);
 
-					 if ( mic1_flag && mic2_flag && mic3_flag && mic4_flag)
-					 {
-						 systemState = SHOTRECORDED;
-					 }
+					if (mic1_flag && mic2_flag && mic3_flag && mic4_flag)
+					{
+						systemState = SHOTRECORDED;
+					}
 
-					 if (ul_ms_ticks-timeout_marker > SHOT_TIME_OUT)
-					 {
-						 systemState = SHOTSFAILED;
-						 break;
-					 }
-				 } while (systemState == SHOTSTARTED);
-				 tc_stop(SHOT_TIMER, SHOT_TIMER_CHANNEL);
-			 }
-		 }
-		 else
-		 {
+					if (ul_ms_ticks - timeout_marker > SHOT_TIME_OUT)
+					{
+						systemState = SHOTSFAILED;
+						break;
+					}
+				} while (systemState == SHOTSTARTED);
+				tc_stop(SHOT_TIMER, SHOT_TIMER_CHANNEL);
+			}
+		}
+		else
+		{
 			if (systemState == SHOTRECORDED || systemState == SHOTSFAILED)
 			{
 				if (systemState == SHOTRECORDED)
 				{
 					uint16_t shotId = last_shot.shot_id + 1;
-					Shot shotData = {shotId, mic1_time, mic2_time, mic3_time, mic4_time};
+					Shot shotData = { shotId, mic1_time, mic2_time, mic3_time, mic4_time };
 					send_good_shot(shotData, false);
 					last_shot = shotData;
 				}
@@ -186,7 +186,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 			}
 			else if (systemState == INITIALISING)
 			{
-				if(ul_ms_ticks - shot_space_marker > SHOT_SPACING)
+				if (ul_ms_ticks - shot_space_marker > SHOT_SPACING)
 				{
 					systemState = WAITING;
 				}
@@ -200,33 +200,33 @@ void command_handler(Command cmd)
 	uint16_t data;
 	switch (cmd.command)
 	{
-		case CMD_SHOT_RESEND:
-			if (cmd.data_count == 2)
-			{
-				resend_shot((uint16_t)(cmd.data[0] << 8 | cmd.data[1]));
-			}
-			else
-			{
-				cmd.reply = true;
-				cmd.ack = false;
-				send_command(cmd);
-			}
-			break;
-		case CMD_SET_ADVANCE:
-			data = cmd.data[0];
-			set_paper_advance(data);
-			cmd.data_count = 0;
+	case CMD_SHOT_RESEND:
+		if (cmd.data_count == 2)
+		{
+			resend_shot((uint16_t)(cmd.data[0] << 8 | cmd.data[1]));
+		}
+		else
+		{
 			cmd.reply = true;
-			cmd.ack = true;
+			cmd.ack = false;
 			send_command(cmd);
-			break;
-		
-		case CMD_GET_ADVANCE:
-			return_paper_advance();
-			break;
+		}
+		break;
+	case CMD_SET_ADVANCE:
+		data = cmd.data[0];
+		set_paper_advance(data);
+		cmd.data_count = 0;
+		cmd.reply = true;
+		cmd.ack = true;
+		send_command(cmd);
+		break;
 
-		default:
-			break;
+	case CMD_GET_ADVANCE:
+		return_paper_advance();
+		break;
+
+	default:
+		break;
 	}
 	cmd_rec_flag = false;
 }

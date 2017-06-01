@@ -74,7 +74,7 @@ void send_command(Command cmd)
 	counter++;
 	if (cmd.reply)
 	{
-		msg[counter++] = (cmd.ack) ? ACK: NAK;
+		msg[counter++] = (cmd.ack) ? ACK : NAK;
 	}
 	msg[counter++] = cmd.command;
 	while (dataCtr < cmd.data_count)
@@ -103,7 +103,7 @@ void send_test(void)
 	msg[2] = 's';
 	msg[3] = 't';
 
-	for (int a=0; a<4; a++)
+	for (int a = 0; a < 4; a++)
 	{
 		usart_serial_putchar(COMMS_UART, msg[a]);
 	}
@@ -157,8 +157,8 @@ bool get_command_from_buffer(Command *cmd)
 		}
 	}
 	readIndex = startIndex + 1;
-	
-	if (readIndex >= buffer_pointer) 
+
+	if (readIndex >= buffer_pointer)
 	{
 		return false;
 	}
@@ -167,7 +167,7 @@ bool get_command_from_buffer(Command *cmd)
 		clear_buffer();
 		return false;
 	}
-	else if(rec_buffer[readIndex] > (buffer_pointer - startIndex + 1)) //If the length byte is more that what has already been received, return and wait for the rest of the message.
+	else if (rec_buffer[readIndex] > (buffer_pointer - startIndex + 1)) //If the length byte is more that what has already been received, return and wait for the rest of the message.
 	{
 		return false;
 	}
