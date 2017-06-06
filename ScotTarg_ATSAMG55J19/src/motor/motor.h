@@ -36,8 +36,8 @@
 //#endif
 
 #define MOTOR_PIN_COUNT	4
-#define FORWARD			1
-#define BACKWARD		0
+#define FORWARD			0
+#define BACKWARD		1
 #define MOTOR_STEP_SIZE 100 //! Number of steps in one mm
 
 //void TC0_Handler(void);

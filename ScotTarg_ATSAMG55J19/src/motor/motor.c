@@ -52,7 +52,7 @@ void motor_step(void)
 	else
 	{
 		pio_set_pin_low(motorpins[motorpinindex]);
-		if (motorstepdir == BACKWARD)
+		if (motorstepdir == FORWARD)
 		{
 			motorpinindex+=1;
 			if (motorpinindex == MOTOR_PIN_COUNT)
