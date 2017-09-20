@@ -11,10 +11,15 @@
 
 #include "asf.h"
 
-#define MOTOR_PIN_1			EXT1_PIN_13
-#define MOTOR_PIN_2			EXT1_PIN_14
-#define MOTOR_PIN_3			EXT4_PIN_5
-#define MOTOR_PIN_4			EXT4_PIN_9
+//#define MOTOR_PIN_1			EXT1_PIN_13
+//#define MOTOR_PIN_2			EXT1_PIN_14
+//#define MOTOR_PIN_3			EXT4_PIN_5
+//#define MOTOR_PIN_4			EXT4_PIN_9
+
+#define MOTOR_PIN_1			PIO_PA9_IDX
+#define MOTOR_PIN_2			PIO_PA10_IDX
+#define MOTOR_PIN_3			PIO_PA24_IDX
+#define MOTOR_PIN_4			PIO_PA14_IDX
 
 #define MOTOR_TIMER			TC0
 #define MOTOR_TIMER_ID		ID_TC0

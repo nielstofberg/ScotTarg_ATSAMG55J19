@@ -39,15 +39,19 @@ void button_press_handler(const uint32_t id, const uint32_t index)
  */
 int main(void)
 {
+bool jimmy;
 	sysclk_init();
 	board_init();
-	gpio_init();
-	motor_pins_init();
-	motor_timer_init();
-	configure_shot_timer();
-	configure_serial();
-	configure_console();
-	pio_enable_button_interrupt();
+	
+	//gpio_init();
+	//motor_pins_init();
+	//motor_timer_init();
+	//configure_shot_timer();
+	//configure_serial();
+	//configure_console();
+	//pio_enable_button_interrupt();
+
+	
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -64,7 +68,7 @@ int main(void)
 
 	motor_advance = 2 * MOTOR_STEP_SIZE;
 	last_shot.shot_id = 0;
-
+	
 	//!  Setup SysTick Timer for 1 msec interrupts
 	if (SysTick_Config(clockSpeed / 1000))
 	{
@@ -78,9 +82,14 @@ int main(void)
 		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
 		{
 			led_freq_marker = ul_ms_ticks;
-			ioport_toggle_pin_level(EXAMPLE_LED_GPIO);
+			ioport_toggle_pin_level(HAPPY_LED);
+			jimmy = (EXT1_PIN_6 == PIO_PA25_IDX);
+			if (jimmy)
+			{
+			ioport_toggle_pin_level(HAPPY_LED);
+			}
 		}
-
+		/*
 		if (cmd_rec_flag)
 		{
 			command_handler(new_command);
@@ -192,6 +201,7 @@ int main(void)
 				}
 			}
 		}
+		*/
 	}
 }
 

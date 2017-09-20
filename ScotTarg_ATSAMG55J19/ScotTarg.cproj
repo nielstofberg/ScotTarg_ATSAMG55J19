@@ -230,14 +230,14 @@
         <board id="board.samg55_xplained_pro" value="Add" config="" content-id="Atmel.ASF" />
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
-    <avrtoolserialnumber>ATML2393031800001112</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
+    <avrtoolserialnumber>J41800040175</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x24570AE0</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_edbg>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>2000000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -259,6 +259,17 @@
       </ToolNumber>
       <ToolName>Custom Programming Tool</ToolName>
     </custom>
+    <com_atmel_avrdbg_tool_atmelice>
+      <ToolOptions>
+        <InterfaceProperties>
+          <SwdClock>2000000</SwdClock>
+        </InterfaceProperties>
+        <InterfaceName>SWD</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
+      <ToolNumber>J41800040175</ToolNumber>
+      <ToolName>Atmel-ICE</ToolName>
+    </com_atmel_avrdbg_tool_atmelice>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -404,7 +415,7 @@
     <ListValues>
       <Value>DEBUG</Value>
       <Value>scanf=iscanf</Value>
-      <Value>BOARD=SAMG55_XPLAINED_PRO</Value>
+      <Value>BOARD=USER_BOARD</Value>
       <Value>__SAMG55J19__</Value>
       <Value>ARM_MATH_CM4=true</Value>
       <Value>printf=iprintf</Value>
@@ -530,6 +541,7 @@
     <Folder Include="src\ASF\" />
     <Folder Include="src\ASF\common\" />
     <Folder Include="src\ASF\common\boards\" />
+    <Folder Include="src\ASF\common\boards\user_board" />
     <Folder Include="src\ASF\common\services\" />
     <Folder Include="src\ASF\common\services\clock\" />
     <Folder Include="src\ASF\common\services\clock\samg\" />
@@ -586,6 +598,12 @@
     <Folder Include="src\motor" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\ASF\common\boards\user_board\init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\common\boards\user_board\user_board.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\types.h">
       <SubType>compile</SubType>
     </Compile>

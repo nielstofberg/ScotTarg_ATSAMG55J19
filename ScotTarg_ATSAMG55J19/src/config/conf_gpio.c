@@ -29,6 +29,8 @@ void gpio_init(void)
 	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
 	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
 
+	ioport_s
+
 	//pmc_enable_periph_clk(ID_PIOA); //I think this gets done in board setup
 
 	//pio_set_input(PIOA, MIC1_PIO, PIO_PULLUP);

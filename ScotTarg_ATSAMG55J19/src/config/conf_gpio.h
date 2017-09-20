@@ -11,10 +11,15 @@
 #include "asf.h"
 
 //Pin Allocations
-#define MIC1_PIN    EXT1_PIN_5 //  IOPORT_CREATE_PIN(PIOA, 26)	//Ext1 pin5
-#define MIC2_PIN    EXT1_PIN_6 //  IOPORT_CREATE_PIN(PIOA, 25)	//Ext1 pin6
-#define MIC3_PIN    EXT1_PIN_9 //  IOPORT_CREATE_PIN(PIOA, 24) //Ext1 pin9
-#define MIC4_PIN    EXT1_PIN_10 //  IOPORT_CREATE_PIN(PIOA, 29)	//Ext1 pin10
+//#define MIC1_PIN    PIO_PA26_IDX //  IOPORT_CREATE_PIN(PIOA, 26)	//Ext1 pin5
+//#define MIC2_PIN    PIO_PA25_IDX //  IOPORT_CREATE_PIN(PIOA, 25)	//Ext1 pin6
+//#define MIC3_PIN    PIO_PA24_IDX //  IOPORT_CREATE_PIN(PIOA, 24) //Ext1 pin9
+//#define MIC4_PIN    PIO_PA29_IDX //  IOPORT_CREATE_PIN(PIOA, 29)	//Ext1 pin10
+
+#define MIC1_PIN    PIO_PA26_IDX
+#define MIC2_PIN    PIO_PA25_IDX
+#define MIC3_PIN    PIO_PA24_IDX
+#define MIC4_PIN    PIO_PA29_IDX
 
 #define MIC1_PIO	PIO_PA26
 #define MIC2_PIO	PIO_PA25

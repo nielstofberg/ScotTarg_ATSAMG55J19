@@ -25,7 +25,6 @@
 #define SHOTCOMPLETE	4
 #define SHOTSFAILED		5
 
-#define EXAMPLE_LED_GPIO    LED0_GPIO
 #define LED_FREQ		500
 #define SHOT_TIME_OUT	4
 #define SHOT_SPACING	5000
