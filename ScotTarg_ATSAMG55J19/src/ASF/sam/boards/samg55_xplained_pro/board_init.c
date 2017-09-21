@@ -95,8 +95,8 @@ void system_board_init(void)
 	ioport_init();
 
 	/* Initialize LED0, turned off */
-	ioport_set_pin_dir(LED_0_PIN, IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(LED_0_PIN, IOPORT_PIN_LEVEL_HIGH);
+	ioport_set_pin_dir(HAPPY_LED, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_level(HAPPY_LED, IOPORT_PIN_LEVEL_HIGH);
 
 	/* Initialize SW0 */
 	ioport_set_pin_dir(BUTTON_0_PIN, IOPORT_DIR_INPUT);

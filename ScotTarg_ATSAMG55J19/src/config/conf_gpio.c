@@ -29,20 +29,6 @@ void gpio_init(void)
 	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
 	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
 
-	ioport_s
-
-	//pmc_enable_periph_clk(ID_PIOA); //I think this gets done in board setup
-
-	//pio_set_input(PIOA, MIC1_PIO, PIO_PULLUP);
-	//pio_set_input(PIOA, MIC2_PIO, PIO_PULLUP);
-	//pio_set_input(PIOA, MIC3_PIO, PIO_PULLUP);
-	//pio_set_input(PIOA, MIC4_PIO, PIO_PULLUP);
-
-	//pio_handler_set(PIOA, ID_PIOA, MIC1_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	//pio_handler_set(PIOA, ID_PIOA, MIC2_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	//pio_handler_set(PIOA, ID_PIOA, MIC3_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-	//pio_handler_set(PIOA, ID_PIOA, MIC4_PIO, PIO_IT_RISE_EDGE, pin_edge_handler);
-
 	pio_handler_set(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_ID, PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE, button_press_handler);
 
 	NVIC_EnableIRQ(PIOA_IRQn);	
@@ -87,6 +73,6 @@ void dh(const uint32_t id, const uint32_t index)
 	{
 		bool pinHigh = ioport_get_pin_level(MIC1_PIN);
 		
-		ioport_set_pin_level(LED0_GPIO, pinHigh);
+		ioport_set_pin_level(HAPPY_LED, pinHigh);
 	}
 }

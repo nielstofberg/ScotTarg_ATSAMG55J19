@@ -32,6 +32,7 @@ void button_press_handler(const uint32_t id, const uint32_t index)
 	}
 }
 
+
 /**
  * \brief Initialize the clock system and blink a LED at a constant 1 Hz frequency.
  *
@@ -39,19 +40,16 @@ void button_press_handler(const uint32_t id, const uint32_t index)
  */
 int main(void)
 {
-bool jimmy;
 	sysclk_init();
 	board_init();
 	
-	//gpio_init();
-	//motor_pins_init();
-	//motor_timer_init();
-	//configure_shot_timer();
-	//configure_serial();
+	gpio_init();
+	motor_pins_init();
+	motor_timer_init();
+	configure_shot_timer();
+	configure_serial();
 	//configure_console();
-	//pio_enable_button_interrupt();
-
-	
+	pio_enable_button_interrupt();
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -77,24 +75,19 @@ bool jimmy;
 			// Capture error
 		}
 	}
+	ioport_set_pin_level(HAPPY_LED, false);
 	while (1)
 	{
-		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ)
+		//wdt_reset();
+		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ && ul_ms_ticks>2000)
 		{
 			led_freq_marker = ul_ms_ticks;
 			ioport_toggle_pin_level(HAPPY_LED);
-			jimmy = (EXT1_PIN_6 == PIO_PA25_IDX);
-			if (jimmy)
-			{
-			ioport_toggle_pin_level(HAPPY_LED);
-			}
 		}
-		/*
 		if (cmd_rec_flag)
 		{
 			command_handler(new_command);
 		}
-
 		if (systemState == WAITING)
 		{
 			//! Scan pins for action
@@ -201,7 +194,6 @@ bool jimmy;
 				}
 			}
 		}
-		*/
 	}
 }
 
