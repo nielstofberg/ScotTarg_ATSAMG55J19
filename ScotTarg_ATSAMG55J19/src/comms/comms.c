@@ -86,7 +86,7 @@ void send_command(Command cmd)
 	for (int n = 0; n < counter; n++)
 	{
 		putchar(msg[n]);
-		usart_serial_putchar(COMMS_UART, msg[n]);
+		usart_serial_putchar(USART_SERIAL, msg[n]);
 	}
 }
 
@@ -105,7 +105,7 @@ void send_test(void)
 
 	for (int a = 0; a < 4; a++)
 	{
-		usart_serial_putchar(COMMS_UART, msg[a]);
+		usart_serial_putchar(USART_SERIAL, msg[a]);
 	}
 }
 
@@ -117,9 +117,9 @@ void send_test(void)
 void byte_received()
 {
 	uint8_t buff;
-	if (usart_serial_is_rx_ready(COMMS_UART))
+	if (usart_serial_is_rx_ready(USART_SERIAL))
 	{
-		usart_serial_getchar(COMMS_UART, &buff);
+		usart_serial_getchar(USART_SERIAL, &buff);
 		if (cmd_rec_flag)
 		{
 			return;

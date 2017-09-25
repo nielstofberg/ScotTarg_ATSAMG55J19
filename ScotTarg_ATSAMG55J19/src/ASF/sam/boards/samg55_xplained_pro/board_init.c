@@ -99,8 +99,8 @@ void system_board_init(void)
 	ioport_set_pin_level(HAPPY_LED, IOPORT_PIN_LEVEL_HIGH);
 
 	/* Initialize SW0 */
-	ioport_set_pin_dir(BUTTON_0_PIN, IOPORT_DIR_INPUT);
-	ioport_set_pin_mode(BUTTON_0_PIN, IOPORT_MODE_PULLUP);
+	//ioport_set_pin_dir(BUTTON_0_PIN, IOPORT_DIR_INPUT);
+	//ioport_set_pin_mode(BUTTON_0_PIN, IOPORT_MODE_PULLUP);
 
 #if defined (CONF_BOARD_UART_CONSOLE)
 	/* Configure UART pins */

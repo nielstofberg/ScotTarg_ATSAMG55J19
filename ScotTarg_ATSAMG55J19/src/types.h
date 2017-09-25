@@ -9,6 +9,8 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
+#include "asf.h"
+
 typedef struct command_struct
 {
 	Byte command;

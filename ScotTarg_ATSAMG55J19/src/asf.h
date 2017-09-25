@@ -75,8 +75,8 @@
 #include <pio.h>
 
 // From module: PMC - Power Management Controller
-#include <pmc.h>
-#include <sleep.h>
+//#include <pmc.h>
+//#include <sleep.h>
 
 // From module: Part identification macros
 #include <parts.h>
@@ -85,14 +85,14 @@
 #include <fpu.h>
 
 // From module: SAMG55 Xplained Pro LED support enabled
-#include <led.h>
+//#include <led.h>
 
 // From module: SUPC - Supply Controller
 #include <supc.h>
 
 // From module: Sleep manager - SAM implementation
-#include <sam/sleepmgr.h>
-#include <sleepmgr.h>
+//#include <sam/sleepmgr.h>
+//#include <sleepmgr.h>
 
 // From module: Standard serial I/O (stdio) - SAM implementation
 #include <stdio_serial.h>
@@ -108,9 +108,6 @@
 
 // From module: USART - Univ. Syn Async Rec/Trans
 #include <usart.h>
-
-// From module: WDT - Watchdog Timer
-#include <wdt.h>
 
 // From module: pio_handler support enabled
 #include <pio_handler.h>

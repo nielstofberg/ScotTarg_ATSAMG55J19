@@ -16,10 +16,10 @@
 #define BACKWARD		1
 #define MOTOR_STEP_SIZE 100 //! Number of steps in one mm
 
-//void TC0_Handler(void);
+
+void motor_init(void);
 void motor_start(uint16_t dir, uint32_t steps);
 void motor_timer_handler(void);
-
 void motor_step(void);
 void motor_stop(void);
 

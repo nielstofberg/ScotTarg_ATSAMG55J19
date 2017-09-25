@@ -47,8 +47,81 @@
 #ifndef CONF_BOARD_H_INCLUDED
 #define CONF_BOARD_H_INCLUDED
 
+#include "compiler.h"
+
+#if BOARD == SAMG55_XPLAINED_PRO // If using Demo board
 /** Enable Com Port. */
-#define CONF_BOARD_UART_CONSOLE
 #define CONF_BOARD_USART6
+
+#else  // If Using ScotTarg Board
+
+#define BOARD_FREQ_SLCK_XTAL		(32768U)
+#define BOARD_FREQ_SLCK_BYPASS		(32768U)
+#define BOARD_FREQ_MAINCK_XTAL		(12000000U)
+#define BOARD_FREQ_MAINCK_BYPASS	(12000000U)
+#define BOARD_MCK					CHIP_FREQ_CPU_MAX
+/*TBD startup time needs to be adjusted according to measurements */
+#define BOARD_OSC_STARTUP_US		15625
+
+#define HAPPY_LED					PIO_PA6_IDX
+
+/** Button input pin */
+#define PIN_BUTTON_MASK				PIO_PA2
+#define PIN_BUTTON_PIO				PIOA
+#define PIN_BUTTON_ID				ID_PIOA
+
+/** Mic input pins */
+#define MIC1_PIN					PIO_PA26_IDX
+#define MIC2_PIN					PIO_PA25_IDX
+#define MIC3_PIN					PIO_PA24_IDX
+#define MIC4_PIN					PIO_PA29_IDX
+
+/** Stepper motor output pins */
+#define MOTOR_PIN_1					PIO_PA9_IDX
+#define MOTOR_PIN_2					PIO_PA10_IDX
+#define MOTOR_PIN_3					PIO_PA31_IDX
+#define MOTOR_PIN_4					PIO_PA14_IDX
+
+/** Timer Counters:
+	Prescaler options:
+	PRESCALE 0 == Prescale 1/2 (Clock time)
+	PRESCALE 1 == Prescale 1/8 (Clock time)
+	PRESCALE 2 == Prescale 1/32 (Clock time)
+*/
+//* Timer counter for stepper motor */
+#define MOTOR_TIMER					TC0
+#define MOTOR_TIMER_ID				ID_TC0
+#define MOTOR_TIMER_CHANNEL			0
+#define MOTOT_TIMER_FREQ			200
+#define MOTOR_TIMER_IRQn			TC0_IRQn // Use: void TC0_Handler(void); as interrupt handler
+
+//* Timer counter for Shot timing */
+#define SHOT_TIMER					TC1
+#define SHOT_TIMER_ID				ID_TC3 // Timer 1, Channel 0 = ID3
+#define SHOT_TIMER_CHANNEL			0
+#define SHOT_TIMER_PRESCALE			2
+
+/** USART6 pin definitions */
+#define USART6_RXD_GPIO				PIO_PB11_IDX
+#define USART6_RXD_FLAGS			IOPORT_MODE_MUX_B
+#define USART6_TXD_GPIO				PIO_PB10_IDX
+#define USART6_TXD_FLAGS			IOPORT_MODE_MUX_B
+
+/* A reference setting for USART */
+/** USART Interface */
+#define USART_SERIAL                USART6
+#define USART_SERIAL_BAUDRATE       9600
+#define USART_SERIAL_CHAR_LENGTH    US_MR_CHRL_8_BIT
+#define USART_SERIAL_PARITY         US_MR_PAR_NO
+#define USART_SERIAL_STOP_BIT       false
+
+
+void button_press_handler(const uint32_t, const uint32_t);
+void configure_serial(void);
+void configure_shot_timer(void);
+void motor_timer_init(void);
+void motor_pins_init(void);
+
+#endif
 
 #endif /* CONF_BOARD_H_INCLUDED */

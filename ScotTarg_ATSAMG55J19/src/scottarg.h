@@ -9,10 +9,6 @@
 #ifndef SCOTTARG_H_
 #define SCOTTARG_H_
 
-#include "config/conf_tc.h"
-#include "config/conf_gpio.h"
-#include "config/conf_uart_serial.h"
-#include "config/conf_motor.h"
 #include "types.h"
 #include "comms/comms.h"
 #include "motor/motor.h"

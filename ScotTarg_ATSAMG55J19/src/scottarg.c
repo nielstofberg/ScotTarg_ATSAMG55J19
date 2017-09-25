@@ -22,10 +22,8 @@ void SysTick_Handler(void)
 	ul_ms_ticks++;
 }
 
-void button_press_handler(const uint32_t id, const uint32_t index)
+void button_press_handler(const uint32_t pio_id, const uint32_t pio_index)
 {
-	send_test();
-	putchar('X');
 	if (systemState != INITIALISING)
 	{
 		motor_start(FORWARD, motor_advance);
@@ -43,13 +41,10 @@ int main(void)
 	sysclk_init();
 	board_init();
 	
-	gpio_init();
-	motor_pins_init();
-	motor_timer_init();
+	motor_init();
 	configure_shot_timer();
 	configure_serial();
 	//configure_console();
-	pio_enable_button_interrupt();
 
 	int clockSpeed = sysclk_get_cpu_hz();
 	bool mic1_flag = false;
@@ -64,6 +59,7 @@ int main(void)
 	uint32_t shot_space_marker = 0;
 	uint32_t led_freq_marker = 0;
 
+	cmd_rec_flag = false;
 	motor_advance = 2 * MOTOR_STEP_SIZE;
 	last_shot.shot_id = 0;
 	
