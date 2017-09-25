@@ -85,7 +85,6 @@ void send_command(Command cmd)
 	msg[1] = counter;
 	for (int n = 0; n < counter; n++)
 	{
-		putchar(msg[n]);
 		usart_serial_putchar(USART_SERIAL, msg[n]);
 	}
 }
