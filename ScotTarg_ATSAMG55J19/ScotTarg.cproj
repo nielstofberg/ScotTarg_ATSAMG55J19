@@ -283,7 +283,7 @@
     <ListValues>
       <Value>NDEBUG</Value>
       <Value>scanf=iscanf</Value>
-      <Value>BOARD=SAMG55_XPLAINED_PRO</Value>
+      <Value>BOARD=USER_BOARD</Value>
       <Value>__SAMG55J19__</Value>
       <Value>ARM_MATH_CM4=true</Value>
       <Value>printf=iprintf</Value>
