@@ -115,6 +115,7 @@
 #define USART_SERIAL_PARITY         US_MR_PAR_NO
 #define USART_SERIAL_STOP_BIT       false
 
+#define COMMS_UART					USART_SERIAL	// This has to be set for the comms module to work.
 
 void button_press_handler(const uint32_t, const uint32_t);
 void configure_serial(void);
