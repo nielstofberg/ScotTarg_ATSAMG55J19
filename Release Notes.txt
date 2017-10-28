@@ -1,9 +1,8 @@
 ScotTarg_ATSAMG55J19
 ====================
 
-Version 0.1.0
+Version 0.0.2
 =============
 
-It runns stably, but nead to work more on hardware and test software before looking back at this code.
-
-Cone is vary poorly commented as it is mostly the result of experimentation. Will re-factor and comment as time allows.
+It runns stably om ScottTarg Board Rev1, but nead to work more on hardware and test software before looking back at this code.
+Code is vary poorly commented as it is mostly the result of experimentation. Will re-factor and comment as time allows.
