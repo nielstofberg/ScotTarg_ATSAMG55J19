@@ -46,9 +46,6 @@ void board_init(void)
 	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
 	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
 
-	//ioport_set_pin_dir(BUTTON_0_PIN, IOPORT_DIR_INPUT);
-	//ioport_set_pin_mode(BUTTON_0_PIN, IOPORT_MODE_PULLUP);
-
 	ioport_set_pin_peripheral_mode(USART6_RXD_GPIO, USART6_RXD_FLAGS);
 	ioport_set_pin_peripheral_mode(USART6_TXD_GPIO, USART6_TXD_FLAGS);
 

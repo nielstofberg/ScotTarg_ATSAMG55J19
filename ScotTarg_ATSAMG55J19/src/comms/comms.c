@@ -94,13 +94,13 @@ void send_command(Command cmd)
 *
 * \return void
 */
-void send_test(void)
+void send_version(void)
 {
 	char msg[4];
-	msg[0] = 'T';
-	msg[1] = 'e';
-	msg[2] = 's';
-	msg[3] = 't';
+	msg[0] = '0';
+	msg[1] = '.';
+	msg[2] = '0';
+	msg[3] = '1';
 
 	for (int a = 0; a < 4; a++)
 	{

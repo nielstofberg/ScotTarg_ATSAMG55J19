@@ -33,7 +33,7 @@ bool cmd_rec_flag;
 
 void send_good_shot(Shot shot_data, bool reply);
 void send_bad_shot(uint16_t shotId, bool reply);
-void send_test(void);
+void send_version(void);
 void send_command(Command cmd);
 void read_byte(void);
 void byte_received(void);

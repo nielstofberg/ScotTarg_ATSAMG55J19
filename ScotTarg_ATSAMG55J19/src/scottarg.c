@@ -24,6 +24,7 @@ void SysTick_Handler(void)
 
 void button_press_handler(const uint32_t pio_id, const uint32_t pio_index)
 {
+	send_version();
 	if (systemState != INITIALISING)
 	{
 		motor_start(FORWARD, motor_advance);
