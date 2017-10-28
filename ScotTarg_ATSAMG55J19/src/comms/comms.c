@@ -10,7 +10,7 @@
 int buffer_pointer = 0;
 char rec_buffer[255];
 
-bool get_command_from_buffer(Command *msg);
+bool get_command_from_buffer(command_t *msg);
 void clear_buffer(void);
 
 /**
@@ -18,9 +18,9 @@ void clear_buffer(void);
 *
 * \return void
 */
-void send_good_shot(Shot shot_data, bool reply)
+void send_good_shot(shot_t shot_data, bool reply)
 {
-	Command cmd;
+	command_t cmd;
 	uint16_t counter = 0;
 	cmd.command = (reply) ? CMD_SHOT_RESEND : CMD_SHOT_PACKET;
 	cmd.reply = reply;
@@ -48,7 +48,7 @@ void send_good_shot(Shot shot_data, bool reply)
 */
 void send_bad_shot(uint16_t shotId, bool reply)
 {
-	Command cmd;
+	command_t cmd;
 	uint16_t counter = 0;
 	cmd.command = CMD_SHOT_PACKET;
 	cmd.reply = reply;
@@ -65,7 +65,7 @@ void send_bad_shot(uint16_t shotId, bool reply)
 *
 * \return void
 */
-void send_command(Command cmd)
+void send_command(command_t cmd)
 {
 	Byte msg[50];
 	int counter = 0;
@@ -85,7 +85,7 @@ void send_command(Command cmd)
 	msg[1] = counter;
 	for (int n = 0; n < counter; n++)
 	{
-		usart_serial_putchar(USART_SERIAL, msg[n]);
+		usart_serial_putchar(IP_UART, msg[n]);
 	}
 }
 
@@ -96,16 +96,19 @@ void send_command(Command cmd)
 */
 void send_version(void)
 {
-	char msg[4];
+	//usart_serial_write_packet(IP_UART, SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION));
+/*	char msg[4];
 	msg[0] = '0';
 	msg[1] = '.';
 	msg[2] = '0';
+	msg[1] = '.';
 	msg[3] = '1';
 
 	for (int a = 0; a < 4; a++)
 	{
-		usart_serial_putchar(USART_SERIAL, msg[a]);
+		usart_serial_putchar(IP_UART, msg[a]);
 	}
+*/
 }
 
 /**
@@ -116,9 +119,9 @@ void send_version(void)
 void byte_received()
 {
 	uint8_t buff;
-	if (usart_serial_is_rx_ready(USART_SERIAL))
+	if (usart_serial_is_rx_ready(IP_UART))
 	{
-		usart_serial_getchar(USART_SERIAL, &buff);
+		usart_serial_getchar(IP_UART, &buff);
 		if (cmd_rec_flag)
 		{
 			return;
@@ -139,7 +142,7 @@ void byte_received()
 *
 * \return True if valid message was read. False if the buffer contains no valid message.
 */
-bool get_command_from_buffer(Command *cmd)
+bool get_command_from_buffer(command_t *cmd)
 {
 	int startIndex = 0;
 	int endIndex = 0;

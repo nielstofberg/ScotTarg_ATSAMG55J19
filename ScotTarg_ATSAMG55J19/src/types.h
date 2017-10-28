@@ -11,22 +11,32 @@
 
 #include "asf.h"
 
-typedef struct command_struct
+typedef enum
+{
+	INITIALISING = 0,
+	WAITING = 1,
+	SHOTSTARTED = 2,
+	SHOTRECORDED = 3,
+	SHOTCOMPLETE = 4,
+	SHOTSFAILED = 5
+} shot_state_t;
+
+typedef struct
 {
 	Byte command;
 	Byte data[50];
 	uint16_t data_count;
 	bool reply;
 	bool ack;
-} Command;
+} command_t;
 
-typedef struct shot_struct
+typedef struct
 {
 	uint16_t shot_id;
 	uint16_t mic1_time;
 	uint16_t mic2_time;
 	uint16_t mic3_time;
 	uint16_t mic4_time;
-} Shot;
+} shot_t;
 
 #endif /* TYPES_H_ */

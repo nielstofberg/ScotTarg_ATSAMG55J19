@@ -8,12 +8,13 @@
 #include "motor.h"
 
 int tc00_ms = 0;
-uint32_t motorpins[4] = {MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4};
+uint32_t motorpins[MOTOR_PIN_COUNT] = {MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PIN_3, MOTOR_PIN_4};
 uint8_t motorpinindex = 0;
 uint32_t motorstepcount = 0;
 uint32_t motorsteptarget = 0;
-int8_t motorstepdir = FORWARD;
+motor_dir_t motorstepdir = FORWARD;
 
+void motor_step(void);
 
 void motor_init(void)
 {
@@ -28,7 +29,7 @@ void motor_init(void)
 
 
 	// Initialise motor timer
-	uint32_t freq = MOTOT_TIMER_FREQ;
+	uint32_t freq = MOTOR_TIMER_FREQ;
 	uint32_t ul_div;
 	uint32_t ul_tcclks;
 	uint32_t ul_sysclk = sysclk_get_cpu_hz();
@@ -53,26 +54,22 @@ void motor_init(void)
 	tc_enable_interrupt(MOTOR_TIMER, MOTOR_TIMER_CHANNEL, TC_IER_CPCS);
  }
 
- /**
- Description:    Interrupt handler for Timer 0 Channel 0
- Params:	
- 
- returns: 
- */
- void motor_timer_handler(void)
- {
-	tc00_ms += 1;
-	 /* Clear status bit to acknowledge interrupt */
-	 tc_get_status(TC0, 0);
-
-	 if (tc00_ms>=2)
-	 {
+/**
+Description:    Interrupt handler for Timer 0 Channel 0
+Params:	
+returns: 
+*/
+void motor_timer_handler(void)
+{
+	tc00_ms ++;
+	if (tc00_ms >= STEP_TIME)
+	{
 		tc00_ms = 0;
 		motor_step();
 	 }
- }
+}
 
-void motor_start(uint16_t dir, uint32_t steps)
+void motor_start(motor_dir_t dir, uint32_t steps)
 {
 	motorstepdir = dir;
 	motorsteptarget = steps;
@@ -114,7 +111,7 @@ void motor_step(void)
 
 void motor_stop(void)
 {
-	tc_stop(TC0, 0);
+	tc_stop(MOTOR_TIMER, 0);
 	pio_set_pin_low(motorpins[motorpinindex]);
 	motorstepcount = 0;
 }

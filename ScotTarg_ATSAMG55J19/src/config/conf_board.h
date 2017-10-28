@@ -47,53 +47,19 @@
 #ifndef CONF_BOARD_H_INCLUDED
 #define CONF_BOARD_H_INCLUDED
 
-#include "compiler.h"
-
-#if BOARD == SAMG55_XPLAINED_PRO // If using Demo board
 /** Enable Com Port. */
-#define CONF_BOARD_USART6
+#define CONF_BOARD_UART_CONSOLE
 
-#else  // If Using ScotTarg Board
 
-#define BOARD_FREQ_SLCK_XTAL		(32768U)
-#define BOARD_FREQ_SLCK_BYPASS		(32768U)
-#define BOARD_FREQ_MAINCK_XTAL		(12000000U)
-#define BOARD_FREQ_MAINCK_BYPASS	(12000000U)
-#define BOARD_MCK					CHIP_FREQ_CPU_MAX
-/*TBD startup time needs to be adjusted according to measurements */
-#define BOARD_OSC_STARTUP_US		15625
 
-#define HAPPY_LED					PIO_PA6_IDX
 
-/** Button input pin */
-#define PIN_BUTTON_MASK				PIO_PA2
-#define PIN_BUTTON_PIO				PIOA
-#define PIN_BUTTON_ID				ID_PIOA
-
-/** Mic input pins */
-#define MIC1_PIN					PIO_PA26_IDX
-#define MIC2_PIN					PIO_PA25_IDX
-#define MIC3_PIN					PIO_PA24_IDX
-#define MIC4_PIN					PIO_PA29_IDX
-
-/** Stepper motor output pins */
-#define MOTOR_PIN_1					PIO_PA9_IDX
-#define MOTOR_PIN_2					PIO_PA10_IDX
-#define MOTOR_PIN_3					PIO_PA31_IDX
-#define MOTOR_PIN_4					PIO_PA14_IDX
-
-/** Timer Counters:
-	Prescaler options:
-	PRESCALE 0 == Prescale 1/2 (Clock time)
-	PRESCALE 1 == Prescale 1/8 (Clock time)
-	PRESCALE 2 == Prescale 1/32 (Clock time)
-*/
 //* Timer counter for stepper motor */
 #define MOTOR_TIMER					TC0
 #define MOTOR_TIMER_ID				ID_TC0
 #define MOTOR_TIMER_CHANNEL			0
-#define MOTOT_TIMER_FREQ			200
+#define MOTOR_TIMER_FREQ			200
 #define MOTOR_TIMER_IRQn			TC0_IRQn // Use: void TC0_Handler(void); as interrupt handler
+#define MOTOR_TIMER_Handler			TC0_Handler
 
 //* Timer counter for Shot timing */
 #define SHOT_TIMER					TC1
@@ -101,35 +67,26 @@
 #define SHOT_TIMER_CHANNEL			0
 #define SHOT_TIMER_PRESCALE			2
 
-/** USART6 pin definitions */
-#define USART6_RXD_GPIO				IOPORT_CREATE_PIN(PIOB, 11) //PIO_PB11_IDX
-#define USART6_RXD_FLAGS			IOPORT_MODE_MUX_B
-#define USART6_TXD_GPIO				IOPORT_CREATE_PIN(PIOB, 10) //PIO_PB10_IDX
-#define USART6_TXD_FLAGS			IOPORT_MODE_MUX_B
-#define USART6_SCK_GPIO				IOPORT_CREATE_PIN(PIOB, 13)
-#define USART6_SCK_FLAGS			IOPORT_MODE_MUX_B
-#define USART6_CTS_GPIO				IOPORT_CREATE_PIN(PIOB, 14)
-#define USART6_CTS_FLAGS			IOPORT_MODE_MUX_B
-#define USART6_RTS_GPIO				IOPORT_CREATE_PIN(PIOB, 15)
-#define USART6_RTS_FLAGS			IOPORT_MODE_MUX_B
+#ifdef REMOVED
+//! [tc_define_ch2]
+/* Configure TC0 channel 2 as capture input. */
+#define TC_CHANNEL_CAPTURE			2
+#define ID_TC_CAPTURE				ID_TC2
+#define PIN_TC_CAPTURE				PIN_TC0_TIOA2
+#define PIN_TC_CAPTURE_MUX			PIN_TC0_TIOA2_MUX
+//! [tc_define_ch2]
 
-
-/* A reference setting for USART */
-/** USART Interface */
-#define USART_SERIAL                USART6
-#define USART_SERIAL_BAUDRATE       9600
-#define USART_SERIAL_CHAR_LENGTH    US_MR_CHRL_8_BIT
-#define USART_SERIAL_PARITY         US_MR_PAR_NO
-#define USART_SERIAL_STOP_BIT       false
-
-#define COMMS_UART					USART_SERIAL	// This has to be set for the comms module to work.
-
-void button_press_handler(const uint32_t, const uint32_t);
-void configure_serial(void);
-void configure_shot_timer(void);
-void motor_timer_init(void);
-void motor_pins_init(void);
-
+//! [tc_define_irq_handler]
+/* Use TC2_Handler for TC capture interrupt. */
+#define TC_Handler  TC2_Handler
+#define TC_IRQn     TC2_IRQn
+//! [tc_define_irq_handler]
 #endif
+
+volatile uint32_t rtc_ms;	//!< Global rtc_ms in milliseconds since start of application
+
+void serial_init(void);
+void shot_timer_init(void);
+void button_press_handler(const uint32_t id, const uint32_t index);
 
 #endif /* CONF_BOARD_H_INCLUDED */

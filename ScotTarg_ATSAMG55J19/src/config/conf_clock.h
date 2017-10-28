@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief SAMG55 clock configuration.
+ * \brief SAMG clock configuration.
  *
  * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
  *
@@ -70,16 +70,16 @@
 
 // ===== PLL0 (A) Options   (Fpll = (Fclk * PLL_mul) / PLL_div)
 // Use mul and div effective values here.
-#define CONFIG_PLL0_SOURCE          PLL_SRC_SLCK_RC
+#define CONFIG_PLL0_SOURCE          PLL_SRC_SLCK_XTAL
 #define CONFIG_PLL0_MUL             3662
 #define CONFIG_PLL0_DIV             1
 
 // ===== Target frequency (System clock)
-// - External XTAL frequency: 32768Hz
-// - System clock source: SLCK XTAL
+// - Internal RC frequency: 32000Hz
+// - System clock source: SLCK RC
 // - System clock prescaler: 1 (divided by 1)
-// - PLLA source: SLCK_XTAL
-// - PLLA output: SLCK_XTAL * 3662 / 1
-// - System clock: SLCK_XTAL * 3662 / 1 / 1 = 120MHz
+// - PLLA source: SLCK_RC
+// - PLLA output: SLCK_RC * 1500 / 1
+// - System clock: SLCK_RC * 1500 / 1 / 1 = 48MHz
 
 #endif /* CONF_CLOCK_H_INCLUDED */

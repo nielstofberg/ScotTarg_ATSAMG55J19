@@ -56,6 +56,9 @@
 #include <compiler.h>
 #include <status_codes.h>
 
+// From module: Common build items for user board support templates
+#include <user_board.h>
+
 // From module: EEFC - Enhanced Embedded Flash Controller
 #include <efc.h>
 
@@ -75,8 +78,8 @@
 #include <pio.h>
 
 // From module: PMC - Power Management Controller
-//#include <pmc.h>
-//#include <sleep.h>
+#include <pmc.h>
+#include <sleep.h>
 
 // From module: Part identification macros
 #include <parts.h>
@@ -84,15 +87,12 @@
 // From module: SAM FPU driver
 #include <fpu.h>
 
-// From module: SAMG55 Xplained Pro LED support enabled
-//#include <led.h>
-
 // From module: SUPC - Supply Controller
 #include <supc.h>
 
 // From module: Sleep manager - SAM implementation
-//#include <sam/sleepmgr.h>
-//#include <sleepmgr.h>
+#include <sam/sleepmgr.h>
+#include <sleepmgr.h>
 
 // From module: Standard serial I/O (stdio) - SAM implementation
 #include <stdio_serial.h>

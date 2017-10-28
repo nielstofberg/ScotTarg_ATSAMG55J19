@@ -1,53 +1,47 @@
-/*
- * scottarg.c
+/**
+ * \file
  *
- * Created: 06/05/2017 17:20:12
- * Author: NielSt
- */ 
+ * \brief Empty user application template
+ *
+ */
 
+/**
+ * \mainpage User Application template doxygen documentation
+ *
+ * \par Empty user application template
+ *
+ * Bare minimum empty user application template
+ *
+ * \par Content
+ *
+ * -# Include the ASF header files (through asf.h)
+ * -# "Insert system clock initialization code here" comment
+ * -# Minimal main function that starts with a call to board_init()
+ * -# "Insert application code here" comment
+ *
+ */
+
+/*
+ * Include header files for all drivers that have been imported from
+ * Atmel Software Framework (ASF).
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #include "scottarg.h"
 
-void command_handler(Command cmd);
-void set_paper_advance(uint16_t adv);
-void return_paper_advance(void);
-void resend_shot(uint16_t id);
+int32_t clockSpeed;
+void send_test(void);
+void initialise_system(void);
 
 /**
- * \brief Handler for System Tick interrupt.
- *
- * Process System Tick Event and increments the ul_ms_ticks counter.
- */
-void SysTick_Handler(void)
+	\brief	Main function and entry point of the system
+**/
+int main (void)
 {
-	ul_ms_ticks++;
-}
+	initialise_system();
 
-void button_press_handler(const uint32_t pio_id, const uint32_t pio_index)
-{
-	send_version();
-	if (systemState != INITIALISING)
-	{
-		motor_start(FORWARD, motor_advance);
-	}
-}
-
-
-/**
- * \brief Initialize the clock system and blink a LED at a constant 1 Hz frequency.
- *
- * \return Unused (ANSI-C compatibility).
- */
-int main(void)
-{
-	sysclk_init();
-	board_init();
-	
-	motor_init();
-	configure_shot_timer();
-	configure_serial();
-	//configure_console();
-
-	int clockSpeed = sysclk_get_cpu_hz();
+	rtc_ms = 0;
 	bool mic1_flag = false;
 	bool mic2_flag = false;
 	bool mic3_flag = false;
@@ -56,30 +50,24 @@ int main(void)
 	uint16_t mic2_time = 0;
 	uint16_t mic3_time = 0;
 	uint16_t mic4_time = 0;
-	uint32_t timeout_marker = 0;
-	uint32_t shot_space_marker = 0;
-	uint32_t led_freq_marker = 0;
+	uint32_t timeout_marker = rtc_ms;
+	uint32_t shot_space_marker = rtc_ms;
+	uint32_t led_freq_marker = rtc_ms;
 
 	cmd_rec_flag = false;
 	motor_advance = 2 * MOTOR_STEP_SIZE;
 	last_shot.shot_id = 0;
-	
-	//!  Setup SysTick Timer for 1 msec interrupts
-	if (SysTick_Config(clockSpeed / 1000))
-	{
-		while (1)
-		{
-			// Capture error
-		}
-	}
-	ioport_set_pin_level(HAPPY_LED, false);
+
+
+
+	usart_serial_write_packet(IP_UART,(uint8_t*) SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION)-1);
+	ioport_set_pin_level(HAPPY_PIN, false);
 	while (1)
 	{
-		//wdt_reset();
-		if ((ul_ms_ticks - led_freq_marker) >= LED_FREQ && ul_ms_ticks>2000)
+		if (rtc_ms >= led_freq_marker + LED_FREQ && rtc_ms > 2000) //!< Flash happy led at LED_FREQ rate, but leave it on for the first 2 seconds
 		{
-			led_freq_marker = ul_ms_ticks;
-			ioport_toggle_pin_level(HAPPY_LED);
+			led_freq_marker = rtc_ms;
+			ioport_toggle_pin_level(HAPPY_PIN);
 		}
 		if (cmd_rec_flag)
 		{
@@ -97,7 +85,7 @@ int main(void)
 			{
 				tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
 				int timeCount = 0;
-				timeout_marker = ul_ms_ticks;
+				timeout_marker = rtc_ms;
 				systemState = SHOTSTARTED;
 
 				do
@@ -141,7 +129,7 @@ int main(void)
 						systemState = SHOTRECORDED;
 					}
 
-					if (ul_ms_ticks - timeout_marker > SHOT_TIME_OUT)
+					if (rtc_ms - timeout_marker > SHOT_TIME_OUT)
 					{
 						systemState = SHOTSFAILED;
 						break;
@@ -157,7 +145,7 @@ int main(void)
 				if (systemState == SHOTRECORDED)
 				{
 					uint16_t shotId = last_shot.shot_id + 1;
-					Shot shotData = { shotId, mic1_time, mic2_time, mic3_time, mic4_time };
+					shot_t shotData = { shotId, mic1_time, mic2_time, mic3_time, mic4_time };
 					send_good_shot(shotData, false);
 					last_shot = shotData;
 				}
@@ -181,11 +169,11 @@ int main(void)
 				mic3_time = 0;
 				mic4_time = 0;
 				systemState = INITIALISING;
-				shot_space_marker = ul_ms_ticks;
+				shot_space_marker = rtc_ms;
 			}
 			else if (systemState == INITIALISING)
 			{
-				if (ul_ms_ticks - shot_space_marker > SHOT_SPACING)
+				if (rtc_ms - shot_space_marker > SHOT_SPACING)
 				{
 					systemState = WAITING;
 				}
@@ -194,62 +182,64 @@ int main(void)
 	}
 }
 
-void command_handler(Command cmd)
+/**
+	\brief	initialization class. Sets up all peripherals.
+**/
+void initialise_system()
 {
-	uint16_t data;
-	switch (cmd.command)
+	sysclk_init();
+	board_init();
+	motor_init();
+	shot_timer_init();
+
+	pio_handler_set(BUTTON_PIO, BUTTON_ID, BUTTON_MASK, PIO_IT_FALL_EDGE, button_press_handler);	//!< Set up button interrupt handler
+	NVIC_EnableIRQ(PIOA_IRQn);	//!< Enable PIOA Interrupts	
+	pio_enable_interrupt(BUTTON_PIO, BUTTON_MASK);	//!< Enable interrupt on button
+	
+	serial_init();	 
+	NVIC_EnableIRQ((IRQn_Type) FLEXCOM6_IRQn); //!< Enable FLEXCOM6_IRQn
+	usart_enable_interrupt(IP_UART, US_IER_RXRDY);  //!< enable interrupt on byte received
+
+	clockSpeed = sysclk_get_cpu_hz();
+	//!  Setup SysTick Timer for 1 msec interrupts
+	if (SysTick_Config(clockSpeed / 1000))
 	{
-	case CMD_SHOT_RESEND:
-		if (cmd.data_count == 2)
+		while (1)
 		{
-			resend_shot((uint16_t)(cmd.data[0] << 8 | cmd.data[1]));
+			// Capture error
 		}
-		else
-		{
-			cmd.reply = true;
-			cmd.ack = false;
-			send_command(cmd);
-		}
-		break;
-	case CMD_SET_ADVANCE:
-		data = cmd.data[0];
-		set_paper_advance(data);
-		cmd.data_count = 0;
-		cmd.reply = true;
-		cmd.ack = true;
-		send_command(cmd);
-		break;
-
-	case CMD_GET_ADVANCE:
-		return_paper_advance();
-		break;
-
-	default:
-		break;
 	}
-	cmd_rec_flag = false;
+}
+/**
+	\brief	Handler for System Tick interrupt.
+**/
+void SysTick_Handler(void)
+{
+	rtc_ms++;
 }
 
-void set_paper_advance(uint16_t adv)
+#define NUM_LEN 10
+static int counter=0;
+void send_test(void)
 {
-	motor_advance = adv * MOTOR_STEP_SIZE;
+	const char *strTest = "\r\nTest ";
+	char countstring[NUM_LEN];
+	int x=0;
+
+	usart_serial_write_packet(IP_UART,(uint8_t*)strTest,7);
+	//usart_serial_putchar(IP_UART, counter++);
+
+	itoa(counter++, countstring, NUM_LEN);
+	do
+	{
+		usart_serial_putchar(IP_UART, countstring[x++]);
+		if (countstring[x]=='\0')
+		{
+			break;
+		}
+	}while (x<NUM_LEN);
 }
 
-void return_paper_advance(void)
-{
-	int ma = motor_advance / MOTOR_STEP_SIZE;
-	Command cmd;
-	cmd.command = CMD_SET_ADVANCE;
-	cmd.data[0] = 0x00 | ma;
-	cmd.data_count = 1;
-	cmd.reply = true;
-	cmd.ack = true;
-	send_command(cmd);
-}
 
-void resend_shot(uint16_t id)
-{
-	Shot shot = last_shot;
-	shot.shot_id = id;
-	send_good_shot(shot, true);
-}
+
+
