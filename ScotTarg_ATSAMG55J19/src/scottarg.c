@@ -41,11 +41,10 @@ int main (void)
 {
 	initialise_system();
 
+	uint32_t mic_port_status;
+
 	rtc_ms = 0;
-	bool mic1_flag = false;
-	bool mic2_flag = false;
-	bool mic3_flag = false;
-	bool mic4_flag = false;
+	uint8_t mic_flags = 0;
 	uint16_t mic1_time = 0;
 	uint16_t mic2_time = 0;
 	uint16_t mic3_time = 0;
@@ -55,10 +54,8 @@ int main (void)
 	uint32_t led_freq_marker = rtc_ms;
 
 	cmd_rec_flag = false;
-	motor_advance = 2 * MOTOR_STEP_SIZE;
+	motor_advance = MOTOR_STEP_SIZE;
 	last_shot.shot_id = 0;
-
-
 
 	usart_serial_write_packet(IP_UART,(uint8_t*) SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION)-1);
 	ioport_set_pin_level(HAPPY_PIN, false);
@@ -75,13 +72,15 @@ int main (void)
 		}
 		if (systemState == WAITING)
 		{
-			//! Scan pins for action
-			mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-			mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-			mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-			mic4_flag = !ioport_get_pin_level(MIC4_PIN);
+			mic_port_status = PIOA->PIO_PDSR;	//< PortA's Pin Data Status Register
 
-			if (mic1_flag || mic2_flag || mic3_flag || mic4_flag)
+			//! Scan pins for action
+			mic_flags = ((mic_port_status & MIC1_PIN) == 0) ? MIC1_FLAG_MASK: 0;
+			mic_flags |= ((mic_port_status & MIC2_PIN) == 0) ? MIC2_FLAG_MASK: 0; 
+			mic_flags |= ((mic_port_status & MIC3_PIN) == 0) ? MIC3_FLAG_MASK: 0; 
+			mic_flags |= ((mic_port_status & MIC4_PIN) == 0) ? MIC4_FLAG_MASK: 0; 
+			
+			if (mic_flags)
 			{
 				tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
 				int timeCount = 0;
@@ -90,41 +89,30 @@ int main (void)
 
 				do
 				{
-					if (!mic1_flag)
+					mic_port_status = PIOA->PIO_PDSR;	//< PortA's Pin Data Status Register
+					if (((mic_flags & MIC1_FLAG_MASK) == 0) && ((mic_port_status & MIC1_PIN) == 0))
 					{
-						mic1_flag = !ioport_get_pin_level(MIC1_PIN);
-						if (mic1_flag)
-						{
-							mic1_time = timeCount;
-						}
+						mic1_time = timeCount;
+						mic_flags |= MIC1_FLAG_MASK;
 					}
-					if (!mic2_flag)
+					if (((mic_flags & MIC2_FLAG_MASK) == 0) && ((mic_port_status & MIC2_PIN) == 0))
 					{
-						mic2_flag = !ioport_get_pin_level(MIC2_PIN);
-						if (mic2_flag)
-						{
-							mic2_time = timeCount;
-						}
+						mic2_time = timeCount;
+						mic_flags |= MIC2_FLAG_MASK;
 					}
-					if (!mic3_flag)
+					if (((mic_flags & MIC3_FLAG_MASK) == 0) && ((mic_port_status & MIC3_PIN) == 0))
 					{
-						mic3_flag = !ioport_get_pin_level(MIC3_PIN);
-						if (mic3_flag)
-						{
-							mic3_time = timeCount;
-						}
+						mic3_time = timeCount;
+						mic_flags |= MIC3_FLAG_MASK;
 					}
-					if (!mic4_flag)
+					if (((mic_flags & MIC4_FLAG_MASK) == 0) && ((mic_port_status & MIC4_PIN) == 0))
 					{
-						mic4_flag = !ioport_get_pin_level(MIC4_PIN);
-						if (mic4_flag)
-						{
-							mic4_time = timeCount;
-						}
+						mic4_time = timeCount;
+						mic_flags |= MIC4_FLAG_MASK;
 					}
 					timeCount = tc_read_cv(TC1, 0);
 
-					if (mic1_flag && mic2_flag && mic3_flag && mic4_flag)
+					if (mic_flags == MIC_FLAGS_ALL)
 					{
 						systemState = SHOTRECORDED;
 					}
@@ -160,10 +148,7 @@ int main (void)
 				//! ADvance Paper
 				motor_start(FORWARD, motor_advance);
 				// Reset
-				mic1_flag = false;
-				mic2_flag = false;
-				mic3_flag = false;
-				mic4_flag = false;
+				mic_flags = 0;
 				mic1_time = 0;
 				mic2_time = 0;
 				mic3_time = 0;

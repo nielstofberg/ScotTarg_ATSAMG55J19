@@ -50,9 +50,6 @@
 /** Enable Com Port. */
 #define CONF_BOARD_UART_CONSOLE
 
-
-
-
 //* Timer counter for stepper motor */
 #define MOTOR_TIMER					TC0
 #define MOTOR_TIMER_ID				ID_TC0

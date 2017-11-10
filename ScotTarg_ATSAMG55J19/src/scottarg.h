@@ -16,6 +16,12 @@
 
 #define SOFTWARE_VERSION "0.0.2"
 
+#define MIC_FLAGS_ALL	0x0f
+#define MIC1_FLAG_MASK	(1u << 0)
+#define MIC2_FLAG_MASK	(1u << 1)
+#define MIC3_FLAG_MASK	(1u << 2)
+#define MIC4_FLAG_MASK	(1u << 3)
+
 #define LED_FREQ		500
 #define SHOT_TIME_OUT	4
 #define SHOT_SPACING	5000

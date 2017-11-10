@@ -23,8 +23,8 @@ typedef enum
 }motor_dir_t;
 
 #define MOTOR_PIN_COUNT	4
-#define MOTOR_STEP_SIZE 100 //! Number of steps in one mm
-#define STEP_TIME		3	//ms between steps.
+#define MOTOR_STEP_SIZE 200 //! Number of steps in one mm
+#define STEP_TIME		2	//ms between steps.
 
 void motor_init(void);
 void motor_start(motor_dir_t dir, uint32_t steps);
