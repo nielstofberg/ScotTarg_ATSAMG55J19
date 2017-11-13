@@ -85,5 +85,5 @@ void shot_timer_init(void)
 	  
 	//This line sets the prescaler for TC0 by selecting the TIMER_CLOCK cource
 	//Also enables  compare Trigger (code ... |TC_CMR_CPCTRG) although I'm not using it
-	tc_init(SHOT_TIMER, SHOT_TIMER_CHANNEL, prescaler | TC_CMR_CPCTRG);  
+	tc_init(SHOT_TIMER, SHOT_TIMER_CHANNEL, prescaler);  
  }
