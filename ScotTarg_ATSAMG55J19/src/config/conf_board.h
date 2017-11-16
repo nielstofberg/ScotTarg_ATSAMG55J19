@@ -59,10 +59,17 @@
 #define MOTOR_TIMER_Handler			TC0_Handler
 
 //* Timer counter for Shot timing */
-#define SHOT_TIMER					TC1
-#define SHOT_TIMER_ID				ID_TC3 // Timer 1, Channel 0 = ID3
-#define SHOT_TIMER_CHANNEL			0
-#define SHOT_TIMER_PRESCALE			2
+#define TC_MICS_1					TC0
+#define TC_MICS_234					TC1
+#define TC_MIC1_ID					ID_TC2 // Timer 0, Channel 2 = ID2
+#define TC_MIC2_ID					ID_TC3 // Timer 1, Channel 0 = ID3
+#define TC_MIC3_ID					ID_TC4 // Timer 1, Channel 1 = ID4
+#define TC_MIC4_ID					ID_TC5 // Timer 1, Channel 3 = ID5
+#define TC_MIC1_CHANNEL				2
+#define TC_MIC2_CHANNEL				0
+#define TC_MIC3_CHANNEL				1
+#define TC_MIC4_CHANNEL				2
+#define TC_MIC_PRESCALE				1	// 1 = 8, 2 = 32 
 
 #ifdef REMOVED
 //! [tc_define_ch2]
@@ -83,7 +90,11 @@
 volatile uint32_t rtc_ms;	//!< Global rtc_ms in milliseconds since start of application
 
 void serial_init(void);
-void shot_timer_init(void);
+void mic_timer_init(void);
 void button_press_handler(const uint32_t id, const uint32_t index);
+void mic1_handler(const uint32_t id, const uint32_t index);
+void mic2_handler(const uint32_t id, const uint32_t index);
+void mic3_handler(const uint32_t id, const uint32_t index);
+void mic4_handler(const uint32_t id, const uint32_t index);
 
 #endif /* CONF_BOARD_H_INCLUDED */

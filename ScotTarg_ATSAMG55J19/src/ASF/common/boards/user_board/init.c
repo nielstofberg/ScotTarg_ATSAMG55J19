@@ -50,8 +50,20 @@ void board_init(void)
 	ioport_set_pin_dir(HAPPY_PIN, IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(HAPPY_PIN, IOPORT_PIN_LEVEL_HIGH);
 
-	ioport_set_pin_mode(BUTTON_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_dir(BUTTON_PIN, IOPORT_DIR_INPUT);
 	ioport_set_pin_mode(BUTTON_PIN, IOPORT_MODE_PULLUP);
+
+	ioport_set_pin_dir(MIC1_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(MIC1_PIN, IOPORT_MODE_PULLUP);
+
+	ioport_set_pin_dir(MIC2_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(MIC2_PIN, IOPORT_MODE_PULLUP);
+
+	ioport_set_pin_dir(MIC3_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(MIC3_PIN, IOPORT_MODE_PULLUP);
+
+	ioport_set_pin_dir(MIC4_PIN, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(MIC4_PIN, IOPORT_MODE_PULLUP);
 
 	ioport_set_pin_peripheral_mode(USART6_RXD_GPIO, USART6_RXD_FLAGS);
 	ioport_set_pin_peripheral_mode(USART6_TXD_GPIO, USART6_TXD_FLAGS);
@@ -76,14 +88,20 @@ void serial_init(void)
  Params:	void
  returns:	void
  */
-void shot_timer_init(void)
+void mic_timer_init(void)
 {
-	uint32_t prescaler = SHOT_TIMER_PRESCALE; 
+	uint32_t prescaler = TC_MIC_PRESCALE; 
 
 	/* Configure TC10 TC1 channel 0 */
-	pmc_enable_periph_clk(SHOT_TIMER_ID);
+	pmc_enable_periph_clk(TC_MIC1_ID);
+	pmc_enable_periph_clk(TC_MIC2_ID);
+	pmc_enable_periph_clk(TC_MIC3_ID);
+	pmc_enable_periph_clk(TC_MIC4_ID);
 	  
 	//This line sets the prescaler for TC0 by selecting the TIMER_CLOCK cource
 	//Also enables  compare Trigger (code ... |TC_CMR_CPCTRG) although I'm not using it
-	tc_init(SHOT_TIMER, SHOT_TIMER_CHANNEL, prescaler);  
+	tc_init(TC_MICS_1, TC_MIC1_CHANNEL, prescaler);
+	tc_init(TC_MICS_234, TC_MIC2_CHANNEL, prescaler);
+	tc_init(TC_MICS_234, TC_MIC3_CHANNEL, prescaler);
+	tc_init(TC_MICS_234, TC_MIC4_CHANNEL, prescaler);
  }

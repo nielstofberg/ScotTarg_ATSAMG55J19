@@ -27,5 +27,7 @@
 #define SHOT_SPACING	5000
 
 shot_state_t systemState = INITIALISING;
+uint8_t mic_flags = 0;
+
 
 #endif /* MAIN_H_ */

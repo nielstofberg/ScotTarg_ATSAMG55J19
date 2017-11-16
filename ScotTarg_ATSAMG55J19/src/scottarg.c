@@ -44,7 +44,6 @@ int main (void)
 	uint32_t mic_port_status;
 
 	rtc_ms = 0;
-	uint8_t mic_flags = 0;
 	uint16_t mic1_time = 0;
 	uint16_t mic2_time = 0;
 	uint16_t mic3_time = 0;
@@ -59,6 +58,7 @@ int main (void)
 
 	usart_serial_write_packet(IP_UART,(uint8_t*) SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION)-1);
 	ioport_set_pin_level(HAPPY_PIN, false);
+	mic_flags = 0;
 	while (1)
 	{
 		if (rtc_ms >= led_freq_marker + LED_FREQ && rtc_ms > 2000) //!< Flash happy led at LED_FREQ rate, but leave it on for the first 2 seconds
@@ -72,6 +72,29 @@ int main (void)
 		}
 		if (systemState == WAITING)
 		{
+			if (mic_flags == MIC_FLAGS_ALL)
+			{
+
+				//tc_stop(TC0, TC_MIC1_CHANNEL);
+				TC_MICS_1->TC_CHANNEL[2].TC_CCR = 0x02;
+				TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
+				TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
+				TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+
+				mic1_time = tc_read_cv(TC0, 2);
+				mic2_time = tc_read_cv(TC1, 0);
+				mic3_time = tc_read_cv(TC1, 1);
+				mic4_time = tc_read_cv(TC1, 2);
+				
+				for (int g=0; g< 1000; g++)
+				{
+
+				}
+ 				systemState = SHOTRECORDED;
+
+			}
+
+			/*
 			mic_port_status = PIOA->PIO_PDSR;	//< PortA's Pin Data Status Register
 
 			//! Scan pins for action
@@ -125,6 +148,7 @@ int main (void)
 				} while (systemState == SHOTSTARTED);
 				tc_stop(SHOT_TIMER, SHOT_TIMER_CHANNEL);
 			}
+			*/
 		}
 		else
 		{
@@ -161,6 +185,7 @@ int main (void)
 				if (rtc_ms - shot_space_marker > SHOT_SPACING)
 				{
 					systemState = WAITING;
+					pio_enable_interrupt(MIC_PIO, MIC1_PIN_MASK | MIC2_PIN_MASK | MIC3_PIN_MASK | MIC4_PIN_MASK);	//!< Enable interrupt on button
 				}
 			}
 		}
@@ -175,12 +200,20 @@ void initialise_system()
 	sysclk_init();
 	board_init();
 	motor_init();
-	shot_timer_init();
+	mic_timer_init();
 
 	pio_handler_set(BUTTON_PIO, BUTTON_ID, BUTTON_MASK, PIO_IT_FALL_EDGE, button_press_handler);	//!< Set up button interrupt handler
+
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC1_PIN_MASK, PIO_IT_LOW_LEVEL, mic1_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC2_PIN_MASK, PIO_IT_LOW_LEVEL, mic2_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC3_PIN_MASK, PIO_IT_LOW_LEVEL, mic3_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC4_PIN_MASK, PIO_IT_LOW_LEVEL, mic4_handler);	//!< Set up button interrupt handler
+
 	NVIC_EnableIRQ(PIOA_IRQn);	//!< Enable PIOA Interrupts	
 	pio_enable_interrupt(BUTTON_PIO, BUTTON_MASK);	//!< Enable interrupt on button
-	
+	//pio_enable_interrupt(MIC_PIO, MIC1_PIN_MASK);	//!< Enable interrupt on button
+	//pio_enable_interrupt(MIC_PIO, MIC2_PIN_MASK);	//!< Enable interrupt on button
+
 	serial_init();	 
 	NVIC_EnableIRQ((IRQn_Type) FLEXCOM6_IRQn); //!< Enable FLEXCOM6_IRQn
 	usart_enable_interrupt(IP_UART, US_IER_RXRDY);  //!< enable interrupt on byte received
@@ -202,6 +235,41 @@ void SysTick_Handler(void)
 {
 	rtc_ms++;
 }
+
+void mic1_handler(const uint32_t id, const uint32_t index)
+{
+	TC_MICS_1->TC_CHANNEL[TC_MIC1_CHANNEL].TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
+	//tc_start(TC_MICS_1, TC_MIC1_CHANNEL);
+	pio_disable_interrupt(MIC_PIO, MIC1_PIN_MASK);
+	mic_flags |= MIC1_FLAG_MASK;
+}
+
+void mic2_handler(const uint32_t id, const uint32_t index)
+{
+	TC_MICS_234->TC_CHANNEL[TC_MIC2_CHANNEL].TC_CCR = 5;
+	//tc_start(TC_MICS_234, TC_MIC2_CHANNEL);
+	pio_disable_interrupt(MIC_PIO, MIC2_PIN_MASK);
+	mic_flags |= MIC2_FLAG_MASK;
+}
+
+void mic3_handler(const uint32_t id, const uint32_t index)
+{
+	TC_MICS_234->TC_CHANNEL[TC_MIC3_CHANNEL].TC_CCR = 5;
+	//tc_start(TC_MICS_234, TC_MIC3_CHANNEL);
+	pio_disable_interrupt(MIC_PIO, MIC3_PIN_MASK);
+	mic_flags |= MIC3_FLAG_MASK;
+}
+
+void mic4_handler(const uint32_t id, const uint32_t index)
+{
+	TC_MICS_234->TC_CHANNEL[TC_MIC4_CHANNEL].TC_CCR = 5;
+	//tc_start(TC_MICS_234, TC_MIC4_CHANNEL);
+	pio_disable_interrupt(MIC_PIO, MIC4_PIN_MASK);
+	mic_flags |= MIC4_FLAG_MASK;
+}
+
+
+
 
 #define NUM_LEN 10
 static int counter=0;
