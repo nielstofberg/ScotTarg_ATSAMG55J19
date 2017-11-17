@@ -10,6 +10,7 @@
 #define SCOTTARG_H_
 
 #include <asf.h>
+#include "math.h"
 #include "types.h"
 #include "system.h"
 #include "motor/motor.h"

@@ -70,6 +70,10 @@
 #define TC_MIC3_CHANNEL				1
 #define TC_MIC4_CHANNEL				2
 #define TC_MIC_PRESCALE				1	// 1 = 8, 2 = 32 
+#define TC_MIC1_IRQn				TC2_IRQn // Use: void TC0_Handler(void); as interrupt handler
+#define TC_MIC2_IRQn				TC3_IRQn // Use: void TC1_Handler(void); as interrupt handler
+#define TC_MIC3_IRQn				TC4_IRQn // Use: void TC1_Handler(void); as interrupt handler
+#define TC_MIC4_IRQn				TC5_IRQn // Use: void TC1_Handler(void); as interrupt handler
 
 #ifdef REMOVED
 //! [tc_define_ch2]

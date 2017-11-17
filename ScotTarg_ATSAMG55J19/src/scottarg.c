@@ -33,6 +33,8 @@
 int32_t clockSpeed;
 void send_test(void);
 void initialise_system(void);
+void enable_mic_timer_interrupts(void);
+void disable_mic_timer_interrupts(void);
 
 /**
 	\brief	Main function and entry point of the system
@@ -41,9 +43,8 @@ int main (void)
 {
 	initialise_system();
 
-	uint32_t mic_port_status;
-
 	rtc_ms = 0;
+	uint16_t times[4] = {0, 0, 0, 0};
 	uint16_t mic1_time = 0;
 	uint16_t mic2_time = 0;
 	uint16_t mic3_time = 0;
@@ -59,6 +60,7 @@ int main (void)
 	usart_serial_write_packet(IP_UART,(uint8_t*) SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION)-1);
 	ioport_set_pin_level(HAPPY_PIN, false);
 	mic_flags = 0;
+	enable_mic_timer_interrupts();
 	while (1)
 	{
 		if (rtc_ms >= led_freq_marker + LED_FREQ && rtc_ms > 2000) //!< Flash happy led at LED_FREQ rate, but leave it on for the first 2 seconds
@@ -80,75 +82,26 @@ int main (void)
 				TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
 				TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
 				TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+				disable_mic_timer_interrupts();
 
-				mic1_time = tc_read_cv(TC0, 2);
-				mic2_time = tc_read_cv(TC1, 0);
-				mic3_time = tc_read_cv(TC1, 1);
-				mic4_time = tc_read_cv(TC1, 2);
+				times[1] = tc_read_cv(TC1, 0);
+				times[0] = tc_read_cv(TC0, 2);
+				times[2] = tc_read_cv(TC1, 1);
+				times[3] = tc_read_cv(TC1, 2);
+				if (times[0]==0) times[0] = 0xffff;
+				if (times[1]==0) times[1] = 0xffff;
+				if (times[2]==0) times[2] = 0xffff;
+				if (times[3]==0) times[3] = 0xffff;
+
 				
-				for (int g=0; g< 1000; g++)
-				{
-
-				}
+				int16_t max = get_max(times, 4);
+				mic1_time = max - times[0];
+				mic2_time = max - times[1];
+				mic3_time = max - times[2];
+				mic4_time = max - times[3];
  				systemState = SHOTRECORDED;
 
 			}
-
-			/*
-			mic_port_status = PIOA->PIO_PDSR;	//< PortA's Pin Data Status Register
-
-			//! Scan pins for action
-			mic_flags = ((mic_port_status & MIC1_PIN) == 0) ? MIC1_FLAG_MASK: 0;
-			mic_flags |= ((mic_port_status & MIC2_PIN) == 0) ? MIC2_FLAG_MASK: 0; 
-			mic_flags |= ((mic_port_status & MIC3_PIN) == 0) ? MIC3_FLAG_MASK: 0; 
-			mic_flags |= ((mic_port_status & MIC4_PIN) == 0) ? MIC4_FLAG_MASK: 0; 
-			
-			if (mic_flags)
-			{
-				tc_start(SHOT_TIMER, SHOT_TIMER_CHANNEL);
-				int timeCount = 0;
-				timeout_marker = rtc_ms;
-				systemState = SHOTSTARTED;
-
-				do
-				{
-					mic_port_status = PIOA->PIO_PDSR;	//< PortA's Pin Data Status Register
-					if (((mic_flags & MIC1_FLAG_MASK) == 0) && ((mic_port_status & MIC1_PIN) == 0))
-					{
-						mic1_time = timeCount;
-						mic_flags |= MIC1_FLAG_MASK;
-					}
-					if (((mic_flags & MIC2_FLAG_MASK) == 0) && ((mic_port_status & MIC2_PIN) == 0))
-					{
-						mic2_time = timeCount;
-						mic_flags |= MIC2_FLAG_MASK;
-					}
-					if (((mic_flags & MIC3_FLAG_MASK) == 0) && ((mic_port_status & MIC3_PIN) == 0))
-					{
-						mic3_time = timeCount;
-						mic_flags |= MIC3_FLAG_MASK;
-					}
-					if (((mic_flags & MIC4_FLAG_MASK) == 0) && ((mic_port_status & MIC4_PIN) == 0))
-					{
-						mic4_time = timeCount;
-						mic_flags |= MIC4_FLAG_MASK;
-					}
-					timeCount = tc_read_cv(TC1, 0);
-
-					if (mic_flags == MIC_FLAGS_ALL)
-					{
-						systemState = SHOTRECORDED;
-					}
-
-					if (rtc_ms - timeout_marker > SHOT_TIME_OUT)
-					{
-						systemState = SHOTSFAILED;
-						break;
-					}
-				} while (systemState == SHOTSTARTED);
-				tc_stop(SHOT_TIMER, SHOT_TIMER_CHANNEL);
-			}
-			*/
 		}
 		else
 		{
@@ -185,6 +138,7 @@ int main (void)
 				if (rtc_ms - shot_space_marker > SHOT_SPACING)
 				{
 					systemState = WAITING;
+					enable_mic_timer_interrupts();
 					pio_enable_interrupt(MIC_PIO, MIC1_PIN_MASK | MIC2_PIN_MASK | MIC3_PIN_MASK | MIC4_PIN_MASK);	//!< Enable interrupt on button
 				}
 			}
@@ -204,10 +158,10 @@ void initialise_system()
 
 	pio_handler_set(BUTTON_PIO, BUTTON_ID, BUTTON_MASK, PIO_IT_FALL_EDGE, button_press_handler);	//!< Set up button interrupt handler
 
-	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC1_PIN_MASK, PIO_IT_LOW_LEVEL, mic1_handler);	//!< Set up button interrupt handler
-	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC2_PIN_MASK, PIO_IT_LOW_LEVEL, mic2_handler);	//!< Set up button interrupt handler
-	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC3_PIN_MASK, PIO_IT_LOW_LEVEL, mic3_handler);	//!< Set up button interrupt handler
-	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC4_PIN_MASK, PIO_IT_LOW_LEVEL, mic4_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC1_PIN_MASK, PIO_IT_FALL_EDGE, mic1_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC2_PIN_MASK, PIO_IT_FALL_EDGE, mic2_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC3_PIN_MASK, PIO_IT_FALL_EDGE, mic3_handler);	//!< Set up button interrupt handler
+	pio_handler_set(MIC_PIO, MIC_PIO_ID, MIC4_PIN_MASK, PIO_IT_FALL_EDGE, mic4_handler);	//!< Set up button interrupt handler
 
 	NVIC_EnableIRQ(PIOA_IRQn);	//!< Enable PIOA Interrupts	
 	pio_enable_interrupt(BUTTON_PIO, BUTTON_MASK);	//!< Enable interrupt on button
@@ -269,6 +223,58 @@ void mic4_handler(const uint32_t id, const uint32_t index)
 }
 
 
+void TC2_Handler(void)
+{
+	TC_MICS_1->TC_CHANNEL[2].TC_CCR = 0x02;
+	TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+	tc_get_status(TC_MICS_1, 2);
+}
+
+void TC3_Handler(void)
+{
+	TC_MICS_1->TC_CHANNEL[2].TC_CCR = 0x02;
+	TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+	tc_get_status(TC_MICS_234, 0);
+}
+
+void TC4_Handler(void)
+{
+	TC_MICS_1->TC_CHANNEL[2].TC_CCR = 0x02;
+	TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+	tc_get_status(TC_MICS_234, 1);
+}
+
+void TC5_Handler(void)
+{
+	TC_MICS_1->TC_CHANNEL[2].TC_CCR = 0x02;
+	TC_MICS_234->TC_CHANNEL[0].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[1].TC_CCR = 0x2;
+	TC_MICS_234->TC_CHANNEL[2].TC_CCR = 0x2;
+	tc_get_status(TC_MICS_234, 2);
+}
+
+
+void enable_mic_timer_interrupts(void)
+{
+	tc_enable_interrupt(TC_MICS_1, TC_MIC1_CHANNEL, TC_IER_COVFS);
+	tc_enable_interrupt(TC_MICS_234, TC_MIC2_CHANNEL, TC_IER_COVFS);
+	tc_enable_interrupt(TC_MICS_234, TC_MIC3_CHANNEL, TC_IER_COVFS);
+	tc_enable_interrupt(TC_MICS_234, TC_MIC4_CHANNEL, TC_IER_COVFS);
+}
+
+void disable_mic_timer_interrupts(void)
+{
+	tc_disable_interrupt(TC_MICS_1, TC_MIC1_CHANNEL, TC_IDR_COVFS);
+	tc_disable_interrupt(TC_MICS_234, TC_MIC2_CHANNEL, TC_IER_COVFS);
+	tc_disable_interrupt(TC_MICS_234, TC_MIC3_CHANNEL, TC_IER_COVFS);
+	tc_disable_interrupt(TC_MICS_234, TC_MIC4_CHANNEL, TC_IER_COVFS);
+}
 
 
 #define NUM_LEN 10

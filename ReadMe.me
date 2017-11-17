@@ -22,6 +22,10 @@ The third byte is an ACK(0x06) if the command was executed or a NAK(0x15) if the
 Byte four is the command that the reply is for.
 Byte five to byte [count-1] are data bytes that hold the data requested in the command. If the command was not a requesst for data, there will be no bytes here.
 
+Settings:
+=========
+Currently the best setting for the potentiometer is 1053ohm between TP1 and TP2
+
 Shot Packet:
 ============
 Command: 0x20

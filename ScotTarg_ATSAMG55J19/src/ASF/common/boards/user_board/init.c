@@ -104,4 +104,9 @@ void mic_timer_init(void)
 	tc_init(TC_MICS_234, TC_MIC2_CHANNEL, prescaler);
 	tc_init(TC_MICS_234, TC_MIC3_CHANNEL, prescaler);
 	tc_init(TC_MICS_234, TC_MIC4_CHANNEL, prescaler);
+
+	NVIC_EnableIRQ((IRQn_Type) TC_MIC1_IRQn);
+	NVIC_EnableIRQ((IRQn_Type) TC_MIC2_IRQn);
+	NVIC_EnableIRQ((IRQn_Type) TC_MIC3_IRQn);
+	NVIC_EnableIRQ((IRQn_Type) TC_MIC4_IRQn);
  }
