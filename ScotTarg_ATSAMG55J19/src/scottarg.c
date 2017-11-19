@@ -138,8 +138,9 @@ int main (void)
 				if (rtc_ms - shot_space_marker > SHOT_SPACING)
 				{
 					systemState = WAITING;
-					enable_mic_timer_interrupts();
+					pio_get_interrupt_status(MIC_PIO); // This line seems to stop the PIO interrupts from firing imediately after enabling them
 					pio_enable_interrupt(MIC_PIO, MIC1_PIN_MASK | MIC2_PIN_MASK | MIC3_PIN_MASK | MIC4_PIN_MASK);	//!< Enable interrupt on button
+					enable_mic_timer_interrupts();
 				}
 			}
 		}
