@@ -8,6 +8,7 @@
 
 #include <asf.h>
 #include "motor/motor.h"
+#include "comms/com_handler.h"
 
 void button_press_handler(const uint32_t id, const uint32_t index)
 {
@@ -22,6 +23,7 @@ void FLEXCOM6_Handler()
 	if (usart_serial_is_rx_ready(IP_UART))
 	{
 		usart_serial_getchar(IP_UART, &buff);
+		com_add_to_buffer(buff);
 	}
 }
 

@@ -11,16 +11,6 @@
 
 #include "asf.h"
 
-typedef enum
-{
-	INITIALISING = 0,
-	WAITING = 1,
-	SHOTSTARTED = 2,
-	SHOTRECORDED = 3,
-	SHOTCOMPLETE = 4,
-	SHOTSFAILED = 5
-} shot_state_t;
-
 typedef struct
 {
 	Byte command;

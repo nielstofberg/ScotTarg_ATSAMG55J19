@@ -164,7 +164,7 @@ bool get_command_from_buffer(command_t *cmd)
 	{
 		return false;
 	}
-	else if (rec_buffer[readIndex] > BUFFER_SIZE) // If the length byte is bigger than the length of the buffer, this cannot be a valid packet clear the buffer and start over.
+	else if (rec_buffer[readIndex] > COM_BUFFER_SIZE) // If the length byte is bigger than the length of the buffer, this cannot be a valid packet clear the buffer and start over.
 	{
 		clear_buffer();
 		return false;

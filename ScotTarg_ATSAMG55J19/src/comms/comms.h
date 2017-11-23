@@ -11,12 +11,12 @@
 
 #include "asf.h"
 #include "types.h"
+#include "com_handler.h"
 
 //#ifndef COMMS_UART
 //#define COMMS_UART
 //#endif
 
-#define BUFFER_SIZE 50
 #define START_BYTE	0x3C
 #define END_BYTE	0x3E
 #define EOL			0xFF

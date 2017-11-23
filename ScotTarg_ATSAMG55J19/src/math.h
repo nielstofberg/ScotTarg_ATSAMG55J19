@@ -10,7 +10,7 @@
 #define MATH_H_
 #include <asf.h>
 
-int16_t get_max(int16_t* values, int16_t length);
+uint16_t get_max(uint16_t* values, int16_t length);
 
 
 #endif /* MATH_H_ */

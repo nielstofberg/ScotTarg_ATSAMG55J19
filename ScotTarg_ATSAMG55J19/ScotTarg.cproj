@@ -575,6 +575,12 @@
     <Compile Include="src\comms\comms.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\comms\com_handler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\comms\com_handler.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\irq_handlers.c">
       <SubType>compile</SubType>
     </Compile>
@@ -591,6 +597,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\motor\motor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\shot_handler.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\shot_handler.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\system.c">
