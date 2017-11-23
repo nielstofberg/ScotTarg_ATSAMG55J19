@@ -14,7 +14,7 @@
 #include "shot_handler.h"
 #include "motor/motor.h"
 
-#define SW_VERSION			"0.1"
+#define FW_VERSION			"0.1"  //When Major version is more than 9, re-write return_fw_version();
 #define SHOT_LIST_LENGTH	50
 
 uint16_t motor_advance;
@@ -26,5 +26,6 @@ void command_handler(command_t cmd);
 void set_paper_advance(command_t cmd);
 void return_paper_advance(void);
 void return_shot(command_t cmd);
+void return_fw_version(void);
 
 #endif /* SYSTEM_FUNCTIONS_H_ */

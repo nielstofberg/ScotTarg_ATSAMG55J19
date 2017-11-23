@@ -23,6 +23,7 @@
 #define CMD_RESEND_SHOT			0x21
 #define CMD_SET_PAPER_ADVANCE	0x22
 #define CMD_GET_PAPER_ADVANCE	0x23
+#define CMD_GET_FW_VERSION		0x24
 
 
 uint8_t com_buffer[COM_BUFFER_SIZE];
