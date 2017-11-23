@@ -30,16 +30,16 @@ Get Last Shot:
 ==============
 Command: 		0x20
 Example:		3C 04 20 3E
-Total Length:	4
+Total Length:		4
 
 Reply: 			0x06 (ACK)
 Example: 		3C 0F 06 20 01 01 00 00 01 F4 01 F4 01 F4 3E
-Example Values:	Shot ID = 257 (0x0101)
-				Time 1  = 0 (0x0000)
-				Time 2  = 500 (0x01F4)
-				Time 3  = 500 (0x01F4)
-				Time 4  = 500 (0x01F4)
-Reply length:	15
+Example Values:		Shot ID = 257 (0x0101)
+			Time 1  = 0 (0x0000)
+			Time 2  = 500 (0x01F4)
+			Time 3  = 500 (0x01F4)
+			Time 4  = 500 (0x01F4)
+Reply length:		15
 
 Data bytes explained:
 Data byte 1 & 2: 16 bit Shot ID consecutive values so client software can know when it has missed a shot
@@ -53,7 +53,7 @@ Resend Shot:
 ============
 Command:		0x21
 Example:		3C 06 21 01 01 3E
-Total Length:	6
+Total Length:		6
 Data bytes:		Data Byte 1 & 2: 16 bit ID of shot to send
 
 Reply:			For the reply, see Shot Packet. (The command byte [after ACK] will be 0x21 for this command.)
@@ -63,7 +63,7 @@ Set Paper Advance:
 ==================
 Command: 		0x22
 Example:		3C 05 22 03 3E 
-Total Length: 	5
+Total Length: 		5
 Data bytes:		Data byte 1: Number of mm the motor should advance after each shot.
 
 Reply:			0x06 (ACK)
@@ -74,7 +74,7 @@ Get Paper Advance:
 ==================
 Command: 		0x23
 Example:		3C 04 23 3E
-Total Length:	4
+Total Length:		4
 Data bytes:		None
 
 Reply:			0x06 (ACK)
@@ -85,11 +85,11 @@ Get Firmware Version:
 =====================
 Command:		0x24
 Example:		3C 04 24 3E
-Total Length:	4
+Total Length:		4
 Data bytes:		None
 
 Reply:			0x06 (ACK)
 Example:		3C 00 06 24 01 1A 3E (Version 1.26)
 Data bytes:		2 data bytes:
-				Data byte 1: Major version
-				Data byte 2: Minor Version
+			Data byte 1: Major version
+			Data byte 2: Minor Version

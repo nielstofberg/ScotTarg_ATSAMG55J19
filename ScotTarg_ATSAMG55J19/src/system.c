@@ -37,6 +37,7 @@ void set_paper_advance(command_t cmd)
 	command_t replyCmd;
 	replyCmd.reply=true;
 	replyCmd.command = cmd.command;
+	replyCmd.data_count = 0;
 	if (cmd.data_count == 1)
 	{
 		replyCmd.ack = true;
@@ -65,6 +66,7 @@ void return_shot(command_t cmd)
 {	
 	shot_t* replyShot = NULL;
 	command_t replyCmd;
+	replyCmd.data_count = 0;
 	replyCmd.reply = true;
 	replyCmd.command = cmd.command;
 	if (cmd.command == CMD_GET_LAST_SHOT)

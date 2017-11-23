@@ -59,7 +59,7 @@ void com_find_packet()
 	int endIndex = 0;
 	int readIndex = 0;
 	int n;
-	if (com_receive_flag)	//do not find a new packet until the receive flag has been cleared.
+	if (com_receive_flag || (buffer_pointer == 0))	//do not find a new packet until the receive flag has been cleared.
 	{
 		return;
 	}
