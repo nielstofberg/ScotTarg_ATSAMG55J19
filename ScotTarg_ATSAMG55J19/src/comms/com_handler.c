@@ -7,16 +7,24 @@
 
 #include "com_handler.h"
 
+Usart* COM_USART;
 uint8_t buffer_pointer;
 uint8_t buffer_head;
 
-void com_handler_init()
+/*
+ *	\brief:	Call this function when the software starts to initialize all local variables required in the module
+ */
+void com_handler_init(Usart* usart)
 {
+	COM_USART = usart;
 	buffer_pointer = 0;
 	buffer_head = 0;
 	com_receive_flag = false;
 }
 
+/*
+ *	\brief:	Add a new received byte to the receive buffer
+ */
 void com_add_to_buffer(uint8_t byteToAdd)
 {
 	com_buffer[buffer_pointer] = byteToAdd;
@@ -27,6 +35,9 @@ void com_add_to_buffer(uint8_t byteToAdd)
 	}
 }
 
+/*
+ *	\brief:	Clear the receive buffer
+ */
 void com_clear_rec_buffer()
 {
 	for (int n = 0; n < buffer_pointer; n++)
@@ -36,6 +47,11 @@ void com_clear_rec_buffer()
 	buffer_pointer = 0;
 }
 
+/*
+ *	\brief:	Analise the receive buffer to find a complete com packet.
+ *			When a packet is found the data is placed in com_received, the 
+ *			com_receive_flag is set and the receive buffer is cleared.
+ */
 void com_find_packet()
 {
 	command_t cmd;
@@ -97,4 +113,31 @@ void com_find_packet()
 	com_received = cmd;
 	com_receive_flag = true;
 	com_clear_rec_buffer();
+}
+
+/*
+ *	\brief: Send a message that will be created from the data in the Command argument
+ */
+void com_send_command(command_t cmd)
+{
+	Byte msg[50];
+	int counter = 0;
+	int dataCtr = 0;
+	msg[counter++] = BYTE_START;
+	counter++; // We'll get back to the count byte later 
+	if (cmd.reply)
+	{
+		msg[counter++] = (cmd.ack) ? BYTE_ACK : BYTE_NAK;
+	}
+	msg[counter++] = cmd.command;
+	while (dataCtr < cmd.data_count)
+	{
+		msg[counter++] = cmd.data[dataCtr++];
+	}
+	msg[counter++] = BYTE_END;
+	msg[1] = counter;
+	for (int n = 0; n < counter; n++)
+	{
+		usart_serial_putchar(COM_USART, msg[n]);
+	}
 }

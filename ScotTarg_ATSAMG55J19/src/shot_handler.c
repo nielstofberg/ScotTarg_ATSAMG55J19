@@ -16,6 +16,9 @@ uint32_t shot_space_marker = 0;
 uint8_t mic_flags = 0;
 shot_state_t systemState = INITIALISING;
 
+/*
+ *	\brief:	First checks 
+ */
 void do_shot(void)
 {
 	if (systemState == WAITING)
@@ -54,10 +57,11 @@ void do_shot(void)
 		{
 			if (systemState == SHOTRECORDED)
 			{
-				uint16_t shotId = last_shot.shot_id + 1;
-				shot_t shotData = { shotId, mic1_time, mic2_time, mic3_time, mic4_time };
-				//send_good_shot(shotData, false);
-				last_shot = shotData;
+				last_shot_id++;
+				shot_t shotData = { last_shot_id, mic1_time, mic2_time, mic3_time, mic4_time };
+				last_shots[shot_pointer] = shotData;
+				shot_pointer += 1;
+				if (shot_pointer >= SHOT_LIST_LENGTH) shot_pointer = 0;
 			}
 			else
 			{
@@ -89,6 +93,45 @@ void do_shot(void)
 			}
 		}
 	}
+}
+
+/*
+ *	\brief:	Returns the last recorded shot
+ */
+shot_t* get_last_shot(void)
+{
+	if (shot_pointer > 0)
+	{
+		return &last_shots[shot_pointer-1];
+	}
+	else if (last_shot_id > 0)
+	{
+		return &last_shots[SHOT_LIST_LENGTH-1];
+	}
+	return NULL;
+}
+
+/*
+ *	\brief:	Returns the shot with the given ID. If the given ID
+ *			is not in the last SHOT_LIST_LENGTH shots, it returns NULL.
+ */
+shot_t* get_shot(uint16_t shot_id)
+{
+	for (int n = 0; n < SHOT_LIST_LENGTH; n++)
+	{
+		if(n < last_shot_id )
+		{
+			if (last_shots[n].shot_id == shot_id)
+			{
+				return &last_shots[n];
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+	return NULL;
 }
 
 void mic1_handler(const uint32_t id, const uint32_t index)

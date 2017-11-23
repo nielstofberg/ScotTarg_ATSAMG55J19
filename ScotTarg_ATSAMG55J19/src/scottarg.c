@@ -43,10 +43,9 @@ int main (void)
 
 	rtc_ms = 0;
 	uint32_t led_freq_marker = rtc_ms;
-
-	cmd_rec_flag = false;
+	last_shot_id = 0;
+	shot_pointer = 0;
 	motor_advance = MOTOR_STEP_SIZE;
-	last_shot.shot_id = 0;
 
 	usart_serial_write_packet(IP_UART,(uint8_t*) SOFTWARE_VERSION, sizeof(SOFTWARE_VERSION)-1);
 	ioport_set_pin_level(HAPPY_PIN, false);
@@ -58,11 +57,12 @@ int main (void)
 			led_freq_marker = rtc_ms;
 			ioport_toggle_pin_level(HAPPY_PIN);
 		}
-		if (cmd_rec_flag)
+		if (com_receive_flag)
 		{
-			command_handler(new_command);
+			command_handler(com_received);
 		}
 		do_shot();
+		com_find_packet();
 	}
 }
 
@@ -101,7 +101,7 @@ void initialise_system()
 			// Capture error
 		}
 	}
-	com_handler_init();
+	com_handler_init(IP_UART);
 }
 /**
 	\brief	Handler for System Tick interrupt.

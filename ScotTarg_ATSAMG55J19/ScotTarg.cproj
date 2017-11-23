@@ -569,12 +569,6 @@
     <Folder Include="src\comms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\comms\comms.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\comms\comms.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\comms\com_handler.c">
       <SubType>compile</SubType>
     </Compile>

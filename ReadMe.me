@@ -10,7 +10,7 @@ Each of the GPIO pins take their input from a sound sensor located in the corner
 The receiving software will use the four timings (one of which will always be 0) to calculate the location of the sound source.
 
 Serial Protocol:
-This software will normally act as a comms slave with only one exception.That is to say, this software will accept valid comms packages and execute the containing command.
+This software will normally act as a comms slave. That is to say, this software will accept a valid comms packet, execute the containing command and reply with an appropriate packet.
 A valid command starts with '<'[0x3C] and ends with '>'[0x3E].
 After the opening '<' follows a count byte. The count byte holds the length of the entire message
 The third byte is the command.
@@ -20,43 +20,76 @@ For each command there will be a reply.
 The first two bytes of a reply are the same as the command. 
 The third byte is an ACK(0x06) if the command was executed or a NAK(0x15) if there was a problem with the command.
 Byte four is the command that the reply is for.
-Byte five to byte [count-1] are data bytes that hold the data requested in the command. If the command was not a requesst for data, there will be no bytes here.
+Byte five to byte [count-1] are data bytes that hold the data requested in the command. If the command was not a request for data, there will be no bytes here.
 
 Settings:
 =========
 Currently the best setting for the potentiometer is 1053ohm between TP1 and TP2
 
-Shot Packet:
-============
-Command: 0x20
-Total Length: 13
+Get Last Shot:
+==============
+Command: 		0x20
+Example:		3C 04 20 3E
+Total Length:	4
+
+Reply: 			0x06 (ACK)
+Example: 		3C 0F 06 20 01 01 00 00 01 F4 01 F4 01 F4 3E
+Example Values:	Shot ID = 257 (0x0101)
+				Time 1  = 0 (0x0000)
+				Time 2  = 500 (0x01F4)
+				Time 3  = 500 (0x01F4)
+				Time 4  = 500 (0x01F4)
+Reply length:	15
+
+Data bytes explained:
 Data byte 1 & 2: 16 bit Shot ID consecutive values so client software can know when it has missed a shot
 Byte 3 & 4: 16 bit time count of sensor 1 (Left bottom)
 Byte 5 & 6: 16 bit time count of sensor 2 (Left top)
 Byte 7 & 8: 16 bit time count of sensor 3 (Right top)
 Byte 9 & 10: 16 bit time count of sensor 4 (Right bottom)
 * Where 16 bit values are sent, the upper 8 bits are in the first byte and the lower 8 bits are in the second byte.
-**This is the only packet that gets sent from this software without necessaraly having having received a request. This packet gets sent immediately after a shot was registered, but can be requested again by sending a Resend Shot command
-When requested, the length is 14 with byt 3 being an ACK and everything else moves up one space.
-
 
 Resend Shot:
 ============
-Command: 0x21
-Total Length: 6
-Data byte 1 & 2: 16 bit ID of shot to send
-For the reply, see Shot Packet **
+Command:		0x21
+Example:		3C 06 21 01 01 3E
+Total Length:	6
+Data bytes:		Data Byte 1 & 2: 16 bit ID of shot to send
+
+Reply:			For the reply, see Shot Packet. (The command byte [after ACK] will be 0x21 for this command.)
+* Note that the target only holds the last 50 shots, so if the requested ID is older than 50 shots [or does not exist] this function will reply with NAK
 
 Set Paper Advance:
 ==================
-Command: 0x22
-Total Length: 5
-Data byte 1: Number of mm the motor should advance after each shot.
-The reply for this command is only an ACK (0x06) or NAK (0x15) command
+Command: 		0x22
+Example:		3C 05 22 03 3E 
+Total Length: 	5
+Data bytes:		Data byte 1: Number of mm the motor should advance after each shot.
+
+Reply:			0x06 (ACK)
+Example:		3C 05 06 22 3E
+Data bytes:		None
 
 Get Paper Advance:
 ==================
-Command: 0x23
-Total Length: 4
-No data bytes.
-Reply is a full Set paper advance command with byte 3 being an ACK etc.
+Command: 		0x23
+Example:		3C 04 23 3E
+Total Length:	4
+Data bytes:		None
+
+Reply:			0x06 (ACK)
+Example:		3C 06 06 23 03 3E
+Data bytes:		Only one data byte stating advance in mm.
+
+Get Firmware Version:
+=====================
+Command:		0x24
+Example:		3C 04 24 3E
+Total Length:	4
+Data bytes:		None
+
+Reply:			0x06 (ACK)
+Example:		3C 00 06 24 01 1A 3E (Version 1.26)
+Data bytes:		2 data bytes:
+				Data byte 1: Major version
+				Data byte 2: Minor Version

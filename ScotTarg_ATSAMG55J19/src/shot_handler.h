@@ -36,7 +36,8 @@ typedef enum
 void do_shot(void);
 void enable_mic_timer_interrupts(void);
 void disable_mic_timer_interrupts(void);
-
+shot_t* get_last_shot(void);
+shot_t* get_shot(uint16_t shot_id);
 
 
 #endif /* SHOT_HANDLER_H_ */
