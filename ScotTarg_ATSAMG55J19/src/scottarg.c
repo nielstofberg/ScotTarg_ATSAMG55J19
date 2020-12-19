@@ -146,7 +146,7 @@ int main (void)
 			else if (systemState == SHOTCOMPLETE)
 			{
 				//! ADvance Paper
-				motor_start(FORWARD, motor_advance);
+				motor_start(BACKWARD, motor_advance);
 				// Reset
 				mic_flags = 0;
 				mic1_time = 0;

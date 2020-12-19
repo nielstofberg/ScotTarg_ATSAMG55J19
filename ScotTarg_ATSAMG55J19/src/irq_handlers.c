@@ -11,7 +11,7 @@
 
 void button_press_handler(const uint32_t id, const uint32_t index)
 {
-	motor_start(FORWARD, MOTOR_STEP_SIZE);
+	motor_start(BACKWARD, MOTOR_STEP_SIZE);
 }
 
 /** USART_SERIAL receive interrupt*/
